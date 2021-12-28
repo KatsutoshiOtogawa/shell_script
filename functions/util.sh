@@ -34,12 +34,17 @@ function err() {
 #   delete_file_header file
 #######################################
 function delete_file_header {
-  # you use Darwin, set alias for use Gnu command.
-  if ! gnu_alias; then
-    return 1;
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
+      return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
   fi
-  # unalias gnu command
-  trap 'gnu_unalias' RETURN
 
   local filepath=$1
   # if you ,use pipe line value.
@@ -67,11 +72,16 @@ function delete_file_header {
 #######################################
 function cat_map_delete_file_header {
   # set gnu alias.
-  if ! gnu_alias; then
-    return 1;
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
+      return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
   fi
-  # unalias gnu command
-  trap 'gnu_unalias' RETURN
   local filelist=$@
   if [ -z $filelist ]; then
     filelist=`cat -`

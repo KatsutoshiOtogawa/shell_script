@@ -17,14 +17,17 @@
 #   eraze_comment_line file
 #######################################
 function eraze_comment_line {
-
-  # you use Darwin, set alias for use Gnu command.
-  if ! gnu_alias; then
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
       return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
   fi
-  # unalias gnu command
-  trap 'gnu_unalias' RETURN
-
   local filepath=$1
   # if you ,use pipe line value.
   if [ -z $filepath ]; then
@@ -49,12 +52,17 @@ function eraze_comment_line {
 #   convert_export_line file
 #######################################
 function convert_export_line {
-  # you use Darwin, set alias for use Gnu command.
-  if ! gnu_alias; then
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
       return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
   fi
-  # unalias gnu command
-  trap 'gnu_unalias' RETURN
 
   local filepath=$1
   # if you ,use pipe line value.
