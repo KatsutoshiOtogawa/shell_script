@@ -108,6 +108,7 @@ function cat_map {
   fi
   # check exists function
   if ! type -t $mapF | grep "function" > /dev/null; then
+    echo "${mapF} does not exists." >&2
     return 1
   fi
 
