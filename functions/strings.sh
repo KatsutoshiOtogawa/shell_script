@@ -150,4 +150,3 @@ function cat_map_convert_text_windows_style {
   # map function
   cat_map convert_text_windows_style $filelist
 }
-
