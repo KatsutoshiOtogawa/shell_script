@@ -16,7 +16,82 @@
 #   err "Unable to do_something"  # => you use use sed
 #######################################
 function err() {
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
+      return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
+  fi
   echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
+}
+
+function create_cal() {
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
+      return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
+  fi
+  date +'%Y-%m-%d %H:%M:%S'
+}
+
+function create_date {
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
+      return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
+  fi
+  date -d "30 days" --date '2021-12-29T11:37:43+0900'
+}
+
+#######################################
+# write stderr syntax. google style(https://google.github.io/styleguide/shellguide.html)
+# Globals:
+#   BASH_VERSION
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   0 if correct version bash, non-zero on old version bash you use.
+# Example:
+#  check_bash_version #=> 1 you use old version bash
+#######################################
+function check_bash_version {
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
+      return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
+  fi
+  local min_support=5
+  local version=`echo $BASH_VERSION | cut -c -1`
+
+  if [ $version -lt $min_support ]; then
+    echo "you use old version bash. use greater ${min_support} version" >&2
+    return 1;
+  fi
 }
 
 #######################################
@@ -148,11 +223,12 @@ function cat_map {
 # Returns:
 #   0 if thing was deleted, non-zero on error.
 # Example:
-#   cat file | delete_file_header
-#   delete_file_header file
+#   cat file | file_exists
+#   file_exists file
 #######################################
 function file_exists {
 
+  # $@がなかったら - を取るというふうに作る必要がある。
   for filepath in $@; do
     if ! [ -e $filepath ]; then
       echo "${filepath} is not exists." >&2
