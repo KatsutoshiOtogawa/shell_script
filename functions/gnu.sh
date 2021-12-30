@@ -3,8 +3,8 @@
 # gnu command util.
 
 #######################################
-# check exists gnu command alias gnu command for Mac.
-# gsed, gawk, gxargs,... and many
+# check exists gnu command alias gnu command for Mac and BSD.
+# gsed, gawk, gxargs, gfind, ... and many
 # Globals:
 #   None
 # Arguments:
@@ -12,7 +12,7 @@
 # Outputs:
 #   None
 # Returns:
-#   0 if thing was set alias, non-zero on error.
+#   0 if exists gnu commands, non-zero on error.
 # Example:
 #   gnu_exists # => you use use sed
 #######################################
@@ -36,11 +36,19 @@ function gnu_exists {
       echo "gfind is not exists." >&2
       return 1
     fi
+    if ! type "gdate" > /dev/null; then
+      echo "gdate is not exists." >&2
+      return 1
+    fi
+    if ! type "gcut" > /dev/null; then
+      echo "gcut is not exists." >&2
+      return 1
+    fi
   fi
 }
 
 #######################################
-# set alias gnu command for Mac.
+# set alias gnu command for Mac and BSD.
 # Globals:
 #   GNU_ALIAS
 # Arguments:
@@ -48,7 +56,7 @@ function gnu_exists {
 # Outputs:
 #   None
 # Returns:
-#   0 if thing was set alias, non-zero on error.
+#   0 if  set alias, non-zero on error.
 # Example:
 #   gnu_alias # => you use use sed
 #######################################
@@ -68,6 +76,8 @@ function gnu_alias {
     alias awk=gawk
     alias xargs=gxargs
     alias find=gfind
+    alias date=gdate
+    alias cut=gcut
     # set variable for 
     GNU_ALIAS=GNU_ALIAS
   fi
@@ -93,6 +103,8 @@ function gnu_unalias {
     unalias awk
     unalias xargs
     unalias find
+    unalias date
+    unalias cut
     unset GNU_ALIAS
   fi
 }

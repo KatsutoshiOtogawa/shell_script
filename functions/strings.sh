@@ -123,6 +123,7 @@ function convert_text_windows_style {
       echo "${filepath} is not exists." >&2
       return 1
   fi
+  # shift_jisと分けれるようにする。
   # change to utf8(BOM) CRLF
   nkf --overwrite --oc=UTF-8-BOM -Lw $filepath
 }

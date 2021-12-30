@@ -5,7 +5,7 @@
 #######################################
 # write stderr syntax. google style(https://google.github.io/styleguide/shellguide.html)
 # Globals:
-#   None
+#   GNU_ALIAS
 # Arguments:
 #   All.
 # Outputs:
@@ -28,6 +28,34 @@ function err() {
     ' RETURN
   fi
   echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
+}
+
+#######################################
+# write stdout syntax. google style(https://google.github.io/styleguide/shellguide.html)
+# Globals:
+#   None
+# Arguments:
+#   All.
+# Outputs:
+#   None
+# Returns:
+#   0 if thing was set alias, non-zero on error.
+# Example:
+#   err "Unable to do_something"  # => you use use sed
+#######################################
+function out() {
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
+      return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
+  fi
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*"
 }
 
 function create_cal() {
@@ -235,4 +263,40 @@ function file_exists {
       return 1
     fi
   done
+}
+
+#######################################
+# add operation log for terminal.
+# Globals:
+#   WORKLOG_DIR
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   0 if start script command, non-zero on error.
+# Example:
+#   type_worklog
+#   exit #> save work log between working.
+#######################################
+function type_worklog() {
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! gnu_alias; then
+      return 1;
+    fi
+    # unalias gnu command
+    trap '
+      gnu_unalias
+      trap - RETURN
+    ' RETURN
+  fi
+  if [ -z $WORKLOG_DIR ]; then
+    echo 'set variable WORKING_DIR!' >&2
+    return 1
+  fi
+
+  # yyyy-mm-dd.log
+  local logfile="$(date +'%Y-%m-%d').log"
+  script -a $WORKLOG_DIR/$logfile -q
 }
