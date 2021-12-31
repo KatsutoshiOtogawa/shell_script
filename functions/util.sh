@@ -398,8 +398,7 @@ function select_menu {
 function convert2alpha {
   local alphabet=($(echo {a..z}))
   local ten_base_num=$1
-  local str
-
+  
   if [ -z $ten_base_num ]; then
     echo 'assign parameter ten_base_num!' >&2
     return 1
@@ -428,9 +427,10 @@ function convert2alpha {
   fi
 
   local i
+  local str
   for ((i=0; i < ${#twenty_six_base_num[@]}; i++)); do
-    alpha_num="${twenty_six_base_num[${i}]}"
-    digit="${alphabet[$alpha_num]}"
+    local alpha_num="${twenty_six_base_num[${i}]}"
+    local digit="${alphabet[$alpha_num]}"
     str="${str}${digit}" 
   done
 
