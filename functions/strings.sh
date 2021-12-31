@@ -67,7 +67,7 @@ function convert_export_line {
   local filepath=$1
   # if you ,use pipe line value.
   if [ -z $filepath ]; then
-      filepath=-
+    filepath=-
   fi
   # eraze_comment_line | xargs -I {} echo export {}
   eraze_comment_line $filepath | xargs -I {} echo export {}
@@ -91,8 +91,8 @@ function load_env {
   local filepath=$1
   # if you ,use pipe line value.
   if [ -z $filepath ]; then
-      echo 'you send parameter.' >&2
-      return 1
+    echo 'you send parameter.' >&2
+    return 1
   fi
   # eval "$(cat $1 | sed 's/# .*$//' | xargs -I {} echo export {};)"
   eval "$(cat $filepath | convert_export_line;)"
@@ -145,15 +145,15 @@ function convert_text_windows_style {
 function cat_map_convert_text_windows_style {
   local filelist=$@
   if [ -z $filelist ]; then
-      filelist=`cat -`
-      #  if filelist 
-      if [ -z $filelist ]; then
-          return 1
-      fi
+    filelist=`cat -`
+    #  if filelist 
+    if [ -z $filelist ]; then
+      return 1
+    fi
   fi
   # check file exists
   if file_exists $filelist; then
-      return 1
+    return 1
   fi
   
   # map function
