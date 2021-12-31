@@ -23,24 +23,24 @@ class Ebook(object):
         Raises:
             KeyError: An error occurred accessing not existing variable 'YOUTUBE_STORAGE'.
         """
-        # self.storage_dir = os.environ['YOUTUBE_STORAGE']
 
-    def md2epub(self, epub_opt: Dict = None) -> None:
+        self.manuscript = 'routinetask.md'
+        self.title = 'title.txt'
+        self.out = 'book.epub'
+        self.css = 'stylesheet.css'
+        self.cover_image = 'cover.jpg'
 
-        manuscript = 'routinetask.md'
-        title = 'title.txt'
-        out = 'book.epub'
-        css = 'stylesheet.css'
-        cover_image = 'cover.jpg'
+    def md2epub(self) -> None:
+
         subprocess.run([
             'pandoc','-f','markdown'
             ,'-t', 'epub3'
-            ,manuscript
-            ,title
-            ,'-o', out
-            ,'--css', css
+            ,self.manuscript
+            ,self.title
+            ,'-o', self.out
+            ,'--css', self.css
             ,'--otc', '--toc-depth=2'
-            ,'--epub-cover-image={}'.format(cover_image)
+            ,'--epub-cover-image={}'.format(self.cover_image)
         ], capture_output=True)
 #   pandoc -f markdown \
 #     -t epub3 \
