@@ -13,7 +13,7 @@
 # Returns:
 #   0 if thing was deleted, non-zero on error.
 # Example:
-#   cat file | eraze_comment_line
+#   cat file | eraze_comment_line -
 #   eraze_comment_line file
 #######################################
 function eraze_comment_line {
@@ -29,9 +29,10 @@ function eraze_comment_line {
     ' RETURN
   fi
   local filepath=$1
-  # if you ,use pipe line value.
+  # contains -
   if [ -z $filepath ]; then
-      filepath=-
+    echo 'select filepath ' >&2
+    return 1
   fi
 
   cat $filepath | sed 's/# .*$//'
@@ -48,7 +49,7 @@ function eraze_comment_line {
 # Returns:
 #   0 if thing was deleted, non-zero on error.
 # Example:
-#   cat file | convert_export_line
+#   cat file | convert_export_line -
 #   convert_export_line file
 #######################################
 function convert_export_line {
@@ -65,9 +66,10 @@ function convert_export_line {
   fi
 
   local filepath=$1
-  # if you ,use pipe line value.
+  # contains -
   if [ -z $filepath ]; then
-    filepath=-
+    echo 'select filepath ' >&2
+    return 1
   fi
   # eraze_comment_line | xargs -I {} echo export {}
   eraze_comment_line $filepath | xargs -I {} echo export {}
@@ -84,6 +86,7 @@ function convert_export_line {
 # Returns:
 #   0 if thing was deleted, non-zero on error.
 # Example:
+#   cat .env | load_env
 #   load_env .env
 #######################################
 function load_env {

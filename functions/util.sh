@@ -150,9 +150,10 @@ function delete_file_header {
   fi
 
   local filepath=$1
-  # if you ,use pipe line value.
+  # - filepath
   if [ -z $filepath ]; then
-    filepath=-
+    echo 'select filepath ' >&2
+    return 1
   fi
 
   # 最初の二行飛ばす。
@@ -459,3 +460,105 @@ function convert2alpha_list {
     convert2alpha $i alpha
   done
 }
+
+#######################################
+# translate text.
+# Globals:
+#   DEEPL_AUTH_KEY
+# Arguments:
+#   text
+#   lang
+# Outputs:
+#   alphabet order of alphabet. 0 => a, 25 => z, 26 => aa ...
+# Returns:
+#   0 if , non-zero on error occured.
+# Example:
+#   deepl_translate -r story.txt DE => 
+#   cat story.txt | deepl_translate -r - DE 
+#######################################
+function deepl_translate {
+  if [ -z $DEEPL_AUTH_KEY ]; then
+    echo 'set DEEPL_AUTH_KEY environment variable for translate!' >&2
+    return 1
+  fi
+
+  if ! which jq > /dev/null; then
+    echo 'install jq command. this command is needed to tranalate ' >&2
+    return 1
+  fi
+
+  local doublequotation
+  # -r フラグがあったら左にシフトする事により、同様に処理する。
+  if [ $1 = "-r" ]; then
+    doublequotation="-r"
+    shift
+  fi
+
+  # filepath。 -も含む。
+  local filepath=$1
+  if [ -z $filepath ]; then
+    echo 'filepath assingn!' >&2
+    return 1
+  fi
+
+  # LC_ALL
+  local lang=$2
+  if [ -z $lang ]; then
+    echo 'set lang you want to translate!' >&2
+    return 1
+  fi
+
+  # api の結果を一時ファイルに書き込む
+  local tmpfile=$(mktemp)
+  # remove temporary file return function 
+  trap "
+    rm ${tmpfile}
+    trap - RETURN
+  " RETURN
+
+  curl https://api-free.deepl.com/v2/translate \
+    -d "auth_key=${DEEPL_AUTH_KEY}" \
+    -d "source_lang=EN" \
+    -d "text=$(cat $filepath)" \
+    -d "target_lang=${lang}" > $tmpfile
+
+  # check document(https://www.deepl.com/ja/docs-api/translating-text/response/)
+  # 実際にパースしてできなかったらエラーと決め打ち。
+  trap "
+    cat < ${tmpfile} >&2
+    trap - ERR
+  " ERR
+  jq $doublequotation .translations[].text < $tmpfile
+
+}
+
+function test_environment {
+
+  MYSQL_DB=
+}
+
+function production_environment {
+
+  MYSQL_DB=
+  # MUSQL_DB
+  # prodcution
+}
+
+function test {
+  local tmpfile=$(mktemp)
+  trap "
+    rm ${tmpfile}
+    trap - RETURN
+  " RETURN
+  echo "Hello World" > $tmpfile
+  deepl_translate $tmpfile DE
+
+
+  deepl_translate -r $tmpfile DE
+  # local menu=(${@:2:($#-1)})
+  local args=(${@:2:($#-1)})
+  echo "${args[1]}"
+  # $1 "${fArgs}"
+}
+
+# test $@
