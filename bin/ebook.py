@@ -1,14 +1,55 @@
 
+from collections import namedtuple
 import sys
 import fire
 from version import Version
-from typing import Dict, List
 import subprocess
+from copy import deepcopy
+from subprocess import CalledProcessError
+from dataclasses import dataclass
+from os import path
 
+@dataclass
+class EPubSetting:
+    """create EPubsetting
+    """
+    manuscript: str = 'book.md'
+    title: str = 'title.txt'
+    # name: str = 'book.epub'
+    out: str = 'book.epub'
+    css: str = 'stylesheet.css'
+    cover_image: str = 'cover.jpg'
+    target: str = './'
+    # out という名前のpathとtargetという名前のパス
 
-class Ebook(object):
+@dataclass
+class Ebook:
+    """This class is creating for epub."""
 
-    def __init__(self) -> None:
+    setting = EPubSetting()
+
+    def __setSetting(self, manuscript: str=None, title: str=None, out: str=None, css: str=None, cover_image: str=None,target: str =None, setting: EPubSetting=None) -> EPubSetting:
+
+        if setting is None:
+            setting = deepcopy(self.setting)
+
+        # set variable from parameter.
+        if manuscript:
+            setting.manuscript = manuscript
+        if title:
+            setting.title = title
+        if out:
+            setting.out = out
+        if css:
+            setting.css = css
+        if cover_image:
+            setting.cover_image = cover_image
+        if target:
+            setting.target = target
+
+        return setting
+
+    def md2epub(self, manuscript: str=None, title: str=None, out: str=None, css: str=None, cover_image: str=None,target: str =None, setting: EPubSetting=None) -> None:
         """initialize Youtube Class.
 
         This class Youtube Operating Class
@@ -21,44 +62,39 @@ class Ebook(object):
             None
         
         Raises:
-            KeyError: An error occurred accessing not existing variable 'YOUTUBE_STORAGE'.
+            CalledProcessError: An error occurred executing shell script.
         """
+        self.setting = self.__setSetting(
+            manuscript
+            ,title
+            ,out
+            ,css
+            ,cover_image
+            ,target
+            ,setting
+        )
 
-        self.manuscript = 'routinetask.md'
-        self.title = 'title.txt'
-        self.out = 'book.epub'
-        self.css = 'stylesheet.css'
-        self.cover_image = 'cover.jpg'
-
-    def md2epub(self) -> None:
-
-        subprocess.run([
-            'pandoc','-f','markdown'
-            ,'-t', 'epub3'
-            ,self.manuscript
-            ,self.title
-            ,'-o', self.out
-            ,'--css', self.css
-            ,'--otc', '--toc-depth=2'
-            ,'--epub-cover-image={}'.format(self.cover_image)
-        ], capture_output=True)
-#   pandoc -f markdown \
-#     -t epub3 \
-#     routinetask.md \
-#     title.txt \
-#     -o book.epub \
-#     --css stylesheet.css \
-#     --toc --toc-depth=2 \
-#     --epub-cover-image=cover.jpg
-        # if epub_opt is None:
-        #     self.epub_opt = epub_opt
-        
+        try:
+            subprocess.run([
+                'pandoc','-f','markdown'
+                ,'-t', 'epub3'
+                ,path.join(self.setting.target, self.setting.manuscript)
+                ,path.join(self.setting.target, self.setting.title)
+                ,'-o', path.join(self.setting.target, self.setting.out)
+                ,'--css', path.join(self.setting.target, self.setting.css)
+                ,'--toc', '--toc-depth=2'
+                ,'--epub-cover-image={}'.format(path.join(self.setting.target, self.setting.cover_image))
+            ],check=True
+            ,capture_output=True)
+        except CalledProcessError as err:
+            print(err.stderr, file=sys.stderr)
 
 if __name__ == '__main__':
     version = Version()
     if not version.check():
-        print('python version greater than {1}.{2}'.
-        format(version.valid_version.major,version.valid_version.minor)
+        print(
+            'python version greater than {1}.{2}'.
+                format(version.setting.major,version.setting.minor)
             ,file=sys.stderr
         )
         exit(1)
