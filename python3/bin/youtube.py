@@ -41,6 +41,19 @@ class Youtube(object):
             'outtmpl': self.storage_dir
         }
 
+    # def __setSetting(self, major: int=None, minor: int=None, setting: VersionSetting=None) -> VersionSetting:
+    #     if setting is None:
+    #         setting = deepcopy(self.setting)
+    #     # setting.version
+
+    #     # set variable from parameter.
+    #     if major is not None:
+    #         setting.major = major
+    #     if minor:
+    #         setting.minor = minor
+
+    #     return setting
+
     def download(self, url: str, ydl_opts: Dict = None) -> None:
 
         if ydl_opts is None:
@@ -77,6 +90,12 @@ if __name__ == '__main__':
     if not version.check():
         print('python version greater than {1}.{2}'.
         format(version.valid_version.major,version.valid_version.minor)
+            ,file=sys.stderr
+        )
+    if not version.check():
+        print(
+            'python version greater than {1}.{2}'.
+                format(version.setting.major,version.setting.minor)
             ,file=sys.stderr
         )
         exit(1)

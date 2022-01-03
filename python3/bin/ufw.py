@@ -4,6 +4,8 @@ import fire
 from version import Version
 import pexpect
 import os
+from dataclasses import dataclass
+from copy import deepcopy
 
 class Ufw(object):
 
@@ -31,8 +33,9 @@ class Ufw(object):
 if __name__ == '__main__':
     version = Version()
     if not version.check():
-        print('python version greater than {1}.{2}'.
-        format(version.valid_version.major,version.valid_version.minor)
+        print(
+            'python version greater than {1}.{2}'.
+                format(version.setting.major,version.setting.minor)
             ,file=sys.stderr
         )
         exit(1)
