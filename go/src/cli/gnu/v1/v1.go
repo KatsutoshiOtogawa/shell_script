@@ -68,7 +68,7 @@ func Which(command string) ([]byte, error) {
 	return out, err
 }
 
-func Invoke() {
+func Invoke() error {
 	var funcName string
 	var pkgName string
 	var command string
@@ -102,10 +102,12 @@ func Invoke() {
 			switch funcName {
 
 			case "which":
-				Which(funcName)
+				Which(command)
 
 			default:
-				fmt.Println(funcName, "は存在しないパッケージです。")
+				message := fmt.Sprintf("%s", "は存在しないパッケージです。")
+				err := errors.New(message)
+				return err
 			}
 
 			return nil
@@ -114,6 +116,7 @@ func Invoke() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		fmt.Print(err.Error())
+		return err
 	}
+	return nil
 }
