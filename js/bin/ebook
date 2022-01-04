@@ -17,7 +17,7 @@
 function invoke {
   # nodejs example.mjs md2epub
   local file_name=ebook.mjs
-  local file_dir=$(dirname $0)
+  local file_dir=$(dirname $0)/../src
 
   local abs_file_dir=$(cd $file_dir && pwd)
 

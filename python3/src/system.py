@@ -3,6 +3,33 @@ import fire
 from version import Version
 import os
 
+# /**
+#  * bash which command. wrapper
+#  * @param {string} command you want to check exists command.
+#  * @returns {Promise<string | null>} if exist command return command path,not return null
+#  * @throws {CommandNotFoundError} exist command error
+#  */
+# export async function which(command) {
+#   try {
+#     return (await $`which ${command}`.pipe(process.stdout)).toString();
+#   } catch (p) {
+#     throw new CommandNotFoundError(command);
+#   }
+# }
+
+# /**
+#  * CommandNotFoundError use search command and not found command.
+#  * @extends {Error}
+#  */
+# class CommandNotFoundError extends Error {
+#     constructor(command) {
+#         super(`command ${command} not found`);
+#         this.name = 'CommandNotFoundException';
+#     }
+# }
+
+
+
 class System(object):
 
     def __init__(self):

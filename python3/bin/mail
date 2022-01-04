@@ -3,7 +3,7 @@
 function invoke {
   # python3 mail.py md2epub
   local file_name=mail.py
-  local file_dir=$(dirname $0)
+  local file_dir=$(dirname $0)/../src
   python3 $file_dir/$file_name $@
 }
 
