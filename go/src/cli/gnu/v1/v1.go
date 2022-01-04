@@ -74,6 +74,12 @@ func Invoke() {
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
+				Name:    "pkg",
+				Aliases: []string{"p"},
+				Value:   "",
+				Usage:   "this value doesnot use. this flag need to call from upper layer",
+			},
+			&cli.StringFlag{
 				Name:        "func",
 				Aliases:     []string{"f"},
 				Value:       "",

@@ -1,5 +1,10 @@
 package main
 
+import "fmt"
+
 func main() {
-	invoke()
+	err := invoke()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
