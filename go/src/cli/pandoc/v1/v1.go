@@ -1,12 +1,18 @@
+//go:build pandoc
+
 package v1
 
 import (
+	"fmt"
+	"os"
 	"runtime"
 	"strings"
+
+	"github.com/urfave/cli/v2"
 )
 
 // represent gnu command. these command
-type gnu struct {
+type pandoc struct {
 	Sed   string
 	Awk   string
 	Xargs string
@@ -16,8 +22,8 @@ type gnu struct {
 }
 
 // gnu constructor. gnu type represent gnu command.
-func Gnu() *gnu {
-	gnu := new(gnu)
+func Pandoc() *pandoc {
+	gnu := new(pandoc)
 	gnu.Sed = "sed"
 	gnu.Awk = "awk"
 	gnu.Xargs = "xargs"
@@ -45,4 +51,27 @@ func IsBSD() bool {
 		judge = true
 	}
 	return judge
+}
+
+func Invoke() {
+	var funcName string
+	app := &cli.App{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "func",
+				Value:       "",
+				Usage:       "Write you want to use func name",
+				Destination: &funcName,
+			},
+		},
+		Action: func(c *cli.Context) error {
+			pandoc := Pandoc()
+
+			fmt.Print(pandoc.Awk)
+
+			return nil
+		},
+	}
+
+	app.Run(os.Args)
 }
