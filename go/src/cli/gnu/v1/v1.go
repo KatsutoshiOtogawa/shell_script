@@ -70,14 +70,16 @@ func Which(command string) ([]byte, error) {
 
 func Invoke() {
 	var funcName string
+	var pkgName string
 	var command string
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "pkg",
-				Aliases: []string{"p"},
-				Value:   "",
-				Usage:   "this value doesnot use. this flag need to call from upper layer",
+				Name:        "pkg",
+				Aliases:     []string{"p"},
+				Value:       "",
+				Usage:       "this value doesnot use. this flag need to call from upper layer",
+				Destination: &pkgName,
 			},
 			&cli.StringFlag{
 				Name:        "func",
