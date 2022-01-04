@@ -104,7 +104,7 @@ func Invoke() error {
 			case "which":
 				out, err := Which(command)
 				if err != nil {
-					return nil
+					return err
 				}
 
 				fmt.Println(out)

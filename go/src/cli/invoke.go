@@ -40,7 +40,10 @@ func invoke() error {
 	switch pkgName {
 
 	case "gnu":
-		gnu_v1.Invoke()
+		err := gnu_v1.Invoke()
+		if err != nil {
+			return err
+		}
 
 	default:
 		message := fmt.Sprintf("%s", "は存在しないパッケージです。")
