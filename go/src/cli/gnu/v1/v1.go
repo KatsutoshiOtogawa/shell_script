@@ -58,7 +58,7 @@ func Which(command string) ([]byte, error) {
 
 	cmd := exec.Command("which", command)
 
-	if cmd.ProcessState.ExitCode() == 0 {
+	if cmd.ProcessState.ExitCode() != 0 {
 		message := fmt.Sprintf("command %s not found", command)
 		err := errors.New(message)
 		return nil, err
