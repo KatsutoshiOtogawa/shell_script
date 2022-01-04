@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	v1 "github.com/KatsutoshiOtogawa/shell_script/golang/src/gnu/v1"
-
+	v1 "github.com/KatsutoshiOtogawa/shell_script/go/src/gnu/v1"
 	"github.com/urfave/cli/v2"
 )
 
@@ -22,9 +21,9 @@ func main() {
 		},
 		Action: func(c *cli.Context) error {
 			gnu := v1.Gnu()
-			if gnu.Awk == "awk" {
-				fmt.Printf("awk")
-			}
+
+			fmt.Print(gnu.Awk)
+
 			return nil
 		},
 	}

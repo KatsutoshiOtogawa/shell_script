@@ -1,4 +1,4 @@
-module github.com/KatsutoshiOtogawa/shell_script/golang/src/gnu
+module github.com/KatsutoshiOtogawa/shell_script/go/src/gnu
 
 go 1.17
 

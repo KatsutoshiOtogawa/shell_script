@@ -20,6 +20,7 @@ RUN wget https://nodejs.org/dist/v16.13.1/node-v16.13.1-linux-x64.tar.xz \
 # golangv16
 RUN wget https://go.dev/dl/go1.17.5.linux-amd64.tar.gz \
     && tar -zxvf go1.17*tar.gz -C /usr/local --strip-components=1 --no-same-owner \
+    && rm go1.17*tar.gz
 
 RUN apt install -y sqlite3
 

@@ -1,4 +1,4 @@
-module github.com/KatsutoshiOtogawa/shell_script/golang/src/example
+module github.com/KatsutoshiOtogawa/shell_script/go/src/example
 
 go 1.17
 
