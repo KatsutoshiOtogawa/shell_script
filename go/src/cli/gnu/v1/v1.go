@@ -102,7 +102,12 @@ func Invoke() error {
 			switch funcName {
 
 			case "which":
-				Which(command)
+				out, err := Which(command)
+				if err != nil {
+					return nil
+				}
+
+				fmt.Println(out)
 
 			default:
 				message := fmt.Sprintf("%s", "は存在しないパッケージです。")

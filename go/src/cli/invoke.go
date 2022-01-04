@@ -19,14 +19,14 @@ func invoke() error {
 		// check pkg flag
 		if os.Args[i] == "-pkg" || os.Args[i] == "--pkg" || os.Args[i] == "-p" {
 			// next args exists and next arg isnot flag or pipevalue, assign value.
-			if i < len(os.Args) && os.Args[i+1][0] != '-' {
+			if i+1 < len(os.Args) && os.Args[i+1][0] != '-' {
 				pkgName = os.Args[i+1]
 			}
 		}
 		// check func flag
 		if os.Args[i] == "-func" || os.Args[i] == "--func" || os.Args[i] == "-f" {
 			// next args exists and next arg isnot flag or pipevalue, assign value.
-			if i < len(os.Args) && os.Args[i+1][0] != '-' {
+			if i+1 < len(os.Args) && os.Args[i+1][0] != '-' {
 				funcName = os.Args[i+1]
 			}
 		}
