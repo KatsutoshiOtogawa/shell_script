@@ -4,7 +4,13 @@
 			"path": "../../.."
 		},
 		{
-			"path": "."
+			"path": "example"
+		},
+		{
+			"path": "gnu"
+		},
+		{
+			"path": "pandoc"
 		}
 	],
 	"settings": {}

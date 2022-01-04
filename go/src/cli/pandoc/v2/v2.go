@@ -1,5 +1,3 @@
-//go:build pandoc
-
 package v2
 
 import (

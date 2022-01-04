@@ -3,8 +3,10 @@
 package v1
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 
@@ -53,21 +55,52 @@ func IsBSD() bool {
 	return judge
 }
 
+// gnu command which wrapper
+func Which(command string) ([]byte, error) {
+
+	cmd := exec.Command("which", command)
+
+	if cmd.ProcessState.ExitCode() == 0 {
+		message := fmt.Sprintf("command %s not found", command)
+		err := errors.New(message)
+		return nil, err
+	}
+	out, err := cmd.Output()
+
+	return out, err
+}
+
 func Invoke() {
 	var funcName string
+	var command string
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "func",
+				Aliases:     []string{"f"},
 				Value:       "",
 				Usage:       "Write you want to use func name",
+				Required:    true,
 				Destination: &funcName,
+			},
+			&cli.StringFlag{
+				Name:        "command",
+				Aliases:     []string{"c"},
+				Value:       "",
+				Usage:       "function use",
+				Destination: &command,
 			},
 		},
 		Action: func(c *cli.Context) error {
-			gnu := Gnu()
 
-			fmt.Print(gnu.Awk)
+			switch funcName {
+
+			case "which":
+				Which(funcName)
+
+			default:
+				fmt.Println(funcName, "は存在しないパッケージです。")
+			}
 
 			return nil
 		},

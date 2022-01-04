@@ -1,4 +1,4 @@
-module github.com/KatsutoshiOtogawa/shell_script/go/src/cli
+module github.com/KatsutoshiOtogawa/shell_script/go/src/cli/gnu
 
 go 1.17
 
