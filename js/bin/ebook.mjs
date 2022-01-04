@@ -4,6 +4,7 @@ import { $, nothrow } from 'zx'
 import { Command } from 'commander'
 import path from 'path';
 import { NodeFire } from './nodefire/index.mjs'
+import { which, CommandNotFoundError } from './util.mjs'
 
 /**
  * create EPubSetting
@@ -81,6 +82,14 @@ class Ebook {
     return setting
   }
 
+  /**
+   * 異常なものがないか確認。
+   * @throws {CommandNotFoundError} command not exists.
+   */
+  check() {
+    which('pandoc');
+  }
+
   /** 
    * craete epub file from markdown.
    * @param {string | undefined} manuscript
@@ -90,8 +99,18 @@ class Ebook {
    * @param {string | undefined} coverImage
    * @param {string | undefined} target
    * @param {EPubSetting | undefined} setting
+   * @throws {Error} command not exists.
   */
   async md2epub(manuscript = undefined, title = undefined, out = undefined, css = undefined, coverImage=undefined, target=undefined, setting=undefined){
+    // 異常なものがないか確認。
+    try {
+      this.check();
+    } catch (error) {
+      /** @type {CommandNotFoundError} */
+      const err = error;
+      console.error(err.message);
+      throw err;
+    }
     this.setting = this.#setSetting(
         manuscript
         ,title
@@ -101,6 +120,7 @@ class Ebook {
         ,target
         ,setting
     )
+
     const args = [
       '-f','markdown'
       ,'-t', 'epub3'

@@ -8,7 +8,7 @@ indent_style = space
 insert_final_newline = true
 
 # Source code
-[*.{py,cs,ps1,psd1,psm1}]
+[*.{py,go,cs,ps1,psd1,psm1}]
 indent_size = 4
 
 # Shell scripts

@@ -1,5 +1,4 @@
 // @ts-check
-
 import { $, nothrow } from 'zx'
 import { Command } from 'commander'
 import { NodeFire } from './nodefire/index.mjs'
@@ -26,21 +25,6 @@ class Example {
     ]);
   }
 
-  /**
-   * 
-   * @param {string} command you want to check exists command.
-   */
-  async is_exist(command) {
-    try {
-      // bash return 0 is 
-      // return non 0 value errord occour.
-      await $`which ${command}`;
-    } catch (p) {
-      // console.log(`Error: path ${command}`)
-      console.error(`Error: path ${command}`)
-      // エラーを発生させる。
-    }
-  }
 
   /**
    * 
