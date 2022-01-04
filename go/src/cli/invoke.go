@@ -36,5 +36,8 @@ func invoke() {
 		},
 	}
 
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
 }
