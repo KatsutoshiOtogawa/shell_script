@@ -1,5 +1,3 @@
-//go:build gnu
-
 package v1
 
 import (
