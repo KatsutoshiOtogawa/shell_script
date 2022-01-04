@@ -58,14 +58,19 @@ func Which(command string) ([]byte, error) {
 
 	cmd := exec.Command("which", command)
 
+	out, err := cmd.Output()
+
+	if err != nil {
+		return nil, err
+	}
+
 	if cmd.ProcessState.ExitCode() != 0 {
 		message := fmt.Sprintf("command %s not found", command)
 		err := errors.New(message)
 		return nil, err
 	}
-	out, err := cmd.Output()
 
-	return out, err
+	return out, nil
 }
 
 func Invoke() error {
@@ -107,7 +112,7 @@ func Invoke() error {
 					return err
 				}
 
-				fmt.Println(out)
+				fmt.Print(string(out))
 
 			default:
 				message := fmt.Sprintf("%s", "は存在しないパッケージです。")
