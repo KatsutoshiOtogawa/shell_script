@@ -61,14 +61,16 @@ func Which(command string) ([]byte, error) {
 	out, err := cmd.Output()
 
 	if err != nil {
-		return nil, err
-	}
-
-	if cmd.ProcessState.ExitCode() != 0 {
 		message := fmt.Sprintf("command %s not found", command)
 		err := errors.New(message)
 		return nil, err
 	}
+
+	// if cmd.ProcessState.ExitCode() != 0 {
+	// 	message := fmt.Sprintf("command %s not found", command)
+	// 	err := errors.New(message)
+	// 	return nil, err
+	// }
 
 	return out, nil
 }
