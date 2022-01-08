@@ -17,12 +17,34 @@ RUN wget https://nodejs.org/dist/v16.13.1/node-v16.13.1-linux-x64.tar.xz \
     && tar -xJf node-v16*.tar.xz -C /usr/local --strip-components=1 --no-same-owner \
     && rm node-v16*.tar.xz
     
-# golangv16
+# golangv17
 RUN wget https://go.dev/dl/go1.17.5.linux-amd64.tar.gz \
     && tar -zxvf go1.17*tar.gz -C /usr/local --strip-components=1 --no-same-owner \
     && rm go1.17*tar.gz
 
+# install golang debugger
+RUN go install github.com/go-delve/delve/cmd/dlv@v1.3.2
+
 RUN apt install -y sqlite3
+
+# cpp support
+# boost is cpp major library
+RUN apt install -y build-essential \
+    gdb \
+    libboost-dev \
+    mlocate
+
+# boost library install you use.
+RUN apt install -y \
+    libboost-program-options-dev
+
+# expected c++ library for developer.
+# tcl-dev need と
+RUN apt install -y tcl-expect-dev \
+    tcl-dev
+
+# use openssl. https request and response
+RUN apt install -y libssl-dev
 
 # local only どんなメールが送られるかだけのチェックならこれでOK。
 # pipenv install --system

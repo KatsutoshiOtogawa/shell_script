@@ -17,6 +17,7 @@
 		"golang.go"
 		,"ms-python.python"
 		,"ms-vscode.vscode-typescript-next"
+		,"ms-vscode.cpptools"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

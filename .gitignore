@@ -8,3 +8,17 @@ go/bin/*
 .DS_Store
 
 .vscode
+!/.vscode/c_cpp_properties.json
+
+g++/src/cli/*/out/*
+!g++/src/cli/*/out/.gitignore
+g++/src/cli/out/*
+!g++/src/cli/out/.gitignore
+
+go/src/cli/*/out/*
+!go/src/cli/*/out/.gitignore
+go/src/cli/out/*
+!go/src/cli/out/.gitignore
+
+# g++ core dumpfile. this file required for debugging.
+core
