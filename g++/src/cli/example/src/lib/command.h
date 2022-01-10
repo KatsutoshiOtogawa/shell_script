@@ -5,16 +5,6 @@
 
 namespace cli {
     namespace example {
-
-        namespace web {
-            
-            namespace request {
-
-                // invoke web request
-                // void Invoke();
-            }
-        }
-
         namespace command {
             // namespaceでエラーの部分だけ分ける。
             class call_undefined_function : public std::runtime_error {

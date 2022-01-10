@@ -30,9 +30,13 @@ RUN apt install -y sqlite3
 # cpp support
 # boost is cpp major library
 RUN apt install -y build-essential \
+    cmake \
     gdb \
     libboost-dev \
     mlocate
+
+# install google test for cpp.
+RUN apt install -y googletest googletest-tools
 
 # boost library install you use.
 RUN apt install -y \

@@ -18,6 +18,7 @@
 		,"ms-python.python"
 		,"ms-vscode.vscode-typescript-next"
 		,"ms-vscode.cpptools"
+		,"ms-vscode.cmake-tools"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

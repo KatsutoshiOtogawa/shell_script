@@ -10,10 +10,10 @@ go/bin/*
 .vscode
 !/.vscode/c_cpp_properties.json
 
-g++/src/cli/*/out/*
-!g++/src/cli/*/out/.gitignore
-g++/src/cli/out/*
-!g++/src/cli/out/.gitignore
+g++/src/cli/*/build/*
+!g++/src/cli/*/build/.gitignore
+g++/src/cli/build/*
+!g++/src/cli/build/.gitignore
 
 go/src/cli/*/out/*
 !go/src/cli/*/out/.gitignore
