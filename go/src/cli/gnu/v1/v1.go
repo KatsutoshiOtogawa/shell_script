@@ -109,6 +109,11 @@ func Invoke() error {
 			switch funcName {
 
 			case "which":
+				if command == "" {
+					message := fmt.Sprintf("%s", "assign command args!")
+					err := errors.New(message)
+					return err
+				}
 				out, err := Which(command)
 				if err != nil {
 					return err
