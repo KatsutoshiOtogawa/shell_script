@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+# Comment, .env, file utils
+
+#######################################
+# translate text.
+# Globals:
+#   DEEPL_AUTH_KEY
+# Arguments:
+#   text
+#   lang
+# Outputs:
+#   alphabet order of alphabet. 0 => a, 25 => z, 26 => aa ...
+# Returns:
+#   0 if , non-zero on error occured.
+# Example:
+#   deepl_translate -r story.txt DE => 
+#   cat story.txt | deepl_translate -r - DE 
+#######################################
+function deepl_translate {
+  if [ -z $DEEPL_AUTH_KEY ]; then
+    echo 'set DEEPL_AUTH_KEY environment variable for translate!' >&2
+    return 1
+  fi
+
+  if ! which jq > /dev/null; then
+    echo 'install jq command. this command is needed to tranalate ' >&2
+    return 1
+  fi
+
+  local doublequotation
+  # -r フラグがあったら左にシフトする事により、同様に処理する。
+  if [ $1 = "-r" ]; then
+    doublequotation="-r"
+    shift
+  fi
+
+  # filepath。 -も含む。
+  local filepath=$1
+  if [ -z $filepath ]; then
+    echo 'filepath assingn!' >&2
+    return 1
+  fi
+
+  # LC_ALL
+  local lang=$2
+  if [ -z $lang ]; then
+    echo 'set lang you want to translate!' >&2
+    return 1
+  fi
+
+  # api の結果を一時ファイルに書き込む
+  local tmpfile=$(mktemp)
+  # remove temporary file return function 
+  trap "
+    rm ${tmpfile}
+    trap - RETURN
+  " RETURN
+
+  curl https://api-free.deepl.com/v2/translate \
+    -d "auth_key=${DEEPL_AUTH_KEY}" \
+    -d "source_lang=EN" \
+    -d "text=$(cat $filepath)" \
+    -d "target_lang=${lang}" > $tmpfile
+
+  # check document(https://www.deepl.com/ja/docs-api/translating-text/response/)
+  # 実際にパースしてできなかったらエラーと決め打ち。
+  trap "
+    cat < ${tmpfile} >&2
+    trap - ERR
+  " ERR
+  jq $doublequotation .translations[].text < $tmpfile
+
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  deepl_translate ${new_array[@]}
+}
+
+main $@

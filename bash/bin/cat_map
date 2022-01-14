@@ -1,0 +1,70 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# cat 
+# Globals:
+#   None
+# Arguments:
+#   Stdout to delete comment ,a path. this param 
+# Outputs:
+#   Writes lines delete file_header.
+# Returns:
+#   0 if thing was deleted, non-zero on error.
+# Example:
+#   cat file_list | cat_map # file_list 
+#   cat_map function file1 file2 ...
+#######################################
+function cat_map {
+  local mapF=$1
+  local filelist=${@:2:($#-1)}
+  # if not exists function cause error.
+  if [ -z $1 ]; then
+    echo 'pass function name.' >&2
+    return 1
+  fi
+  # check exists function
+  if ! type -t $mapF | grep "function" > /dev/null; then
+    echo "${mapF} does not exists." >&2
+    return 1
+  fi
+
+  # if you ,use pipe line value.
+  if [ -z $filelist ]; then
+    filelist=`cat -`
+  fi
+  # check file exists
+  if file_exists $filelist; then
+    return 1
+  fi
+
+  local filepath
+  for filepath in $filelist; do
+    # execute function
+    $mapF $filepath
+  done
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  cat_map ${new_array[@]}
+}
+
+main $@

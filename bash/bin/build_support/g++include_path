@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# check g++ include_path g++ compiler search.
+# Globals:
+#   GNU_ALIAS
+# Arguments:
+#   None
+# Outputs:
+#   g++ search include_path.
+# Returns:
+#   0 if exists gnu commands, non-zero on error.
+# Example:
+#   include_path # => show
+#######################################
+function g++include_path () {
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! $(source gnu_alias); then
+      return 1;
+    fi
+  fi
+  local tmpfile=$(mktemp)
+  # remove temporary file return function 
+  trap "
+    rm ${tmpfile}
+    trap - RETURN
+  " RETURN
+
+  # output 
+  g++ -x c++ -v -E /dev/null < /dev/null > $tmpfile
+
+  local line_num=$(cat ${tmpfile} | wc -l)
+  # ファイルで全検索のデータから判断する。
+  cat $tmpfile | \
+    grep -A $line_num "include .* search starts" | \
+    grep -B $line_num "End of search list" | \
+    grep -v "include .* search starts" | \
+    grep -v "End of search list"  | \
+    sed 's/ //g'
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  g++include_path ${new_array[@]}
+}
+
+main $@

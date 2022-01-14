@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# Comment, .env, file utils
+
+#######################################
+# cat 
+# Globals:
+#   None
+# Arguments:
+#   Stdout to delete comment ,a path. this param 
+# Outputs:
+#   Writes lines delete file_header.
+# Returns:
+#   0 if thing was deleted, non-zero on error.
+# Example:
+#   cat file | file_exists
+#   file_exists file
+#######################################
+function file_exists {
+
+  # $@がなかったら - を取るというふうに作る必要がある。
+  local filepath
+  for filepath in $@; do
+    if ! [ -e $filepath ]; then
+      echo "${filepath} is not exists." >&2
+      return 1
+    fi
+  done
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  file_exists ${new_array[@]}
+}
+
+main $@

@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# Comment, .env, file utils
+
+#######################################
+# convert text to windows utf8BOM
+# Globals:
+#   None
+# Arguments:
+#   filepath
+# Outputs:
+#   None
+# Returns:
+#   0 if thing was deleted, non-zero on error.
+# Example:
+#   convert_text_windows_style windows_style.csv
+#######################################
+function convert_text_windows_style {
+  local filepath=$1
+  # check nkf command is exists
+  if ! type "nkf" > /dev/null; then
+      echo "nkf is not exists." >&2
+      return 1
+  fi
+  # if $filepath not exists, return function.
+  if [ -z $filepath ]; then
+      echo "${filepath} is not exists." >&2
+      return 1
+  fi
+  # shift_jisと分けれるようにする。
+  # change to utf8(BOM) CRLF
+  nkf --overwrite --oc=UTF-8-BOM -Lw $filepath
+}
+
+#######################################
+# cat 
+# Globals:
+#   None
+# Arguments:
+#   Stdout to delete comment ,a path. this param 
+# Outputs:
+#   Writes lines delete file_header.
+# Returns:
+#   0 if thing was deleted, non-zero on error.
+# Example:
+#   cat filelist | cat_map_convert_text_windows_style
+#   cat_map_convert_text_windows_style file1 file2 file3 ...
+#######################################
+function cat_map_convert_text_windows_style {
+  local filelist=$@
+  if [ -z $filelist ]; then
+    filelist=`cat -`
+    #  if filelist 
+    if [ -z $filelist ]; then
+      return 1
+    fi
+  fi
+  # check file exists
+  if file_exists $filelist; then
+    return 1
+  fi
+  
+  # map function
+  cat_map convert_text_windows_style $filelist
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  convert_text_windows_style ${new_array[@]}
+}
+
+main $@

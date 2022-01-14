@@ -1,0 +1,68 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# g++ find include_file from g++ compiler path
+# Globals:
+#   GNU_ALIAS
+# Arguments:
+#   include_file: assigned file.
+# Outputs:
+#   g++ search include_path.
+# Returns:
+#   0 if find library, non-zero on error or not found library.
+# Example:
+#   g++find_include libsodium.so => show
+#######################################
+function g++find_include {
+  local include_file=$1
+  # if $include_file not exists, return function.
+  if [ -z $include_file ]; then
+      echo "${include_file} is not exists." >&2
+      return 1
+  fi
+
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! $(source gnu_alias); then
+      return 1;
+    fi
+  fi
+
+  # 
+  local include_files=$(g++include_path | \
+    xargs -I {} find {} -name ${include_file})
+
+  # if doesn't match path, return 1
+  if [ -z $include_files ]; then
+    return 1
+  fi
+
+  # out put match files.
+  echo "${include_files[@]}" | xargs -n 1
+
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  g++find_include ${new_array[@]}
+}
+
+main $@

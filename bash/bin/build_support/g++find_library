@@ -1,0 +1,66 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# g++ find library_file from g++ compiler path
+# Globals:
+#   GNU_ALIAS
+# Arguments:
+#   library_file: assigned file.
+# Outputs:
+#   g++ search libary_path.
+# Returns:
+#   0 if find library, non-zero on error or not found library.
+# Example:
+#   g++find_library libsodium.so => show
+#######################################
+function g++find_library {
+  local library_file=$1
+  # if $include_file not exists, return function.
+  if [ -z $library_file ]; then
+      echo "${library_file} is not exists." >&2
+      return 1
+  fi
+
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! $(source gnu_alias); then
+      return 1;
+    fi
+  fi
+
+  local library_files=$(g++library_path | \
+    xargs -I {} find {} -name ${library_file})
+
+  # if doesn't match path, return 1
+  if [ -z $library_files ]; then
+    return 1
+  fi
+
+  # out put match files.
+  echo "${library_files[@]}" | xargs -n 1
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  g++find_library ${new_array[@]}
+}
+
+main $@

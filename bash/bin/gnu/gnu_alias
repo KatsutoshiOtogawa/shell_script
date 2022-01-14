@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# set alias gnu command for Mac and BSD.
+# Globals:
+#   GNU_ALIAS
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   0 if  set alias, non-zero on error.
+# Example:
+#   gnu_alias # => you use use sed
+#######################################
+function gnu_alias {
+  # include gurad.
+  # if you set alias, return.
+  if [ ! -z $GNU_ALIAS ]; then
+    return
+  fi
+  # you use Darwin, set alias for use Gnu sed, awk, xargs
+  if uname | grep -e Darwin -e BSD > /dev/null; then
+    if ! gnu_exists; then
+      echo "Any Gnu command is not exists." >&2
+      return 1
+    fi
+    # 環境変数 SEDを作ってマッピングして後で消すという方法もある。
+    alias sed=gsed
+    alias awk=gawk
+    alias xargs=gxargs
+    alias find=gfind
+    alias date=gdate
+    alias cut=gcut
+
+    export GNU_ALIAS=GNU_ALIAS
+  fi
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  gnu_alias ${new_array[@]}
+}
+
+main $@

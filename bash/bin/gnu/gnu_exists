@@ -1,0 +1,71 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# check exists gnu command alias gnu command for Mac and BSD.
+# gsed, gawk, gxargs, gfind, ... and many
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   0 if exists gnu commands, non-zero on error.
+# Example:
+#   gnu_exists # => you use use sed
+#######################################
+function gnu_exists {
+  # you use Darwin, set alias for use Gnu sed, awk, xargs
+  if uname | grep -e Darwin -e BSD > /dev/null; then
+    # gsedがなかったら、return 1
+    if ! type "gsed" > /dev/null; then
+      echo "gsed is not exists." >&2
+      return 1
+    fi
+    if ! type "gawk" > /dev/null; then
+      echo "gawk is not exists." >&2
+      return 1
+    fi
+    if ! type "gxargs" > /dev/null; then
+      echo "gxargs is not exists." >&2
+      return 1
+    fi
+    if ! type "gfind" > /dev/null; then
+      echo "gfind is not exists." >&2
+      return 1
+    fi
+    if ! type "gdate" > /dev/null; then
+      echo "gdate is not exists." >&2
+      return 1
+    fi
+    if ! type "gcut" > /dev/null; then
+      echo "gcut is not exists." >&2
+      return 1
+    fi
+  fi
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  gnu_exists ${new_array[@]}
+}
+
+main $@

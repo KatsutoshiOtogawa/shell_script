@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# check g++ library_path g++ compiler search.
+# Globals:
+#   GNU_ALIAS
+# Arguments:
+#   None
+# Outputs:
+#   g++ search libary_path.
+# Returns:
+#   0 if exists gnu commands, non-zero on error.
+# Example:
+#   library_path # => show
+#######################################
+function g++library_path {
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! $(source gnu_alias); then
+      return 1;
+    fi
+  fi
+
+  # check command for shellscript
+  if ! type "g++" > /dev/null; then
+      echo "g++ is not exists. install g++!" >&2
+      return 1
+  fi
+  if ! type "realpath" > /dev/null; then
+      echo "realpath is not exists. install realpath!" >&2
+      return 1
+  fi 
+  # 
+  # xargs only line, delete blank line.
+  g++ -print-search-dirs | \
+    grep libraries | \
+    sed 's/libraries: =//' | \
+    xargs -d ':' -n 1 realpath 2> /dev/null | \
+    xargs -n 1 | \
+    sed 's|/$||' | \
+    sort | uniq
+
+}
+
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  g++library_path ${new_array[@]}
+}
+
+main $@
