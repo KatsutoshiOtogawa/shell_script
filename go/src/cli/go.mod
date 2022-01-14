@@ -2,7 +2,7 @@ module github.com/KatsutoshiOtogawa/shell_script/go/src/cli
 
 go 1.17
 
-require github.com/KatsutoshiOtogawa/shell_script/go/src/cli/gnu v0.0.0-20220104182320-4daf38ca896f
+require github.com/KatsutoshiOtogawa/shell_script/go/src/cli/gnu v0.0.0-20220114192608-dba698180cb1
 
 require (
 	github.com/KatsutoshiOtogawa/shell_script/go/src/cli/example v0.0.0-20220104162207-603d52feb468 // indirect
