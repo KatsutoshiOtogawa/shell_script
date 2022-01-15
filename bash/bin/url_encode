@@ -1,31 +1,31 @@
 #!/bin/bash
 #
-# Comment, .env, file utils
+# gnu command util.
 
 #######################################
-# cat 
+# write stderr syntax. google style(https://google.github.io/styleguide/shellguide.html)
 # Globals:
-#   None
+#   LOGFORMAT
 # Arguments:
-#   Stdout to delete comment ,a path. this param 
+#   All.
 # Outputs:
-#   Writes lines delete file_header.
+#   format 
 # Returns:
-#   0 if thing was deleted, non-zero on error.
+#   0 if thing was set alias, non-zero on error.
 # Example:
-#   cat file | file_exists
-#   file_exists file
+#   url_encode "Unable to do_something"  # => you use use sed
 #######################################
-function file_exists {
+function url_encode() {
+  local sentense=$1
 
-  # $@がなかったら - を取るというふうに作る必要がある。
-  local filepath
-  for filepath in $@; do
-    if ! [ -e $filepath ]; then
-      echo "${filepath} is not exists." >&2
-      return 1
-    fi
-  done
+  if ! type "nkf" > /dev/null; then
+    echo "nkf is not exists. install nkf!" >&2
+    return 1
+  fi
+
+  echo $sentense | \
+    nkf -WwMQ | \
+    sed 's/=/%/g'
 }
 
 function main {
@@ -46,7 +46,7 @@ function main {
   # reindex assign.
   new_array=${new_array[@]}
 
-  file_exists $new_array
+  url_encode $new_array
 }
 
 main $@

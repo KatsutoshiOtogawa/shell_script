@@ -25,7 +25,8 @@ RUN wget https://go.dev/dl/go1.17.5.linux-amd64.tar.gz \
 # install golang debugger
 RUN go install github.com/go-delve/delve/cmd/dlv@v1.3.2
 
-RUN apt install -y sqlite3
+RUN apt install -y sqlite3 \
+    libsqlite3-dev
 
 # cpp support
 # boost is cpp major library
@@ -55,3 +56,31 @@ RUN apt install -y libssl-dev
 # パッケージの設定し直し、またはもう一度設定。
 # dpkg-reconfigure postfix
 # https://wiki.debian.org/Postfix
+
+# install drogon
+RUN apt install -y git \
+    gcc \
+    g++ \
+    cmake
+
+RUN apt install -y libjsoncpp-dev \
+    uuid-dev
+
+RUN apt install  -y openssl \
+    libssl-dev
+
+RUN apt install -y zlib1g-dev
+
+RUN git clone https://github.com/an-tao/drogon -b v1.7.4
+
+RUN cd drogon \
+    && git submodule update --init \
+    && mkdir build \
+    && cd build \
+    && cmake -DCMAKE_BUILD_TYPE=Release .. \
+    && make \
+    && make install \
+    && cd ../../ \
+    && rm -rf drogon/
+
+

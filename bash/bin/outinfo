@@ -1,31 +1,26 @@
 #!/bin/bash
 #
-# Comment, .env, file utils
+# gnu command util.
 
 #######################################
-# cat 
+# write stdout syntax. google style(https://google.github.io/styleguide/shellguide.html)
 # Globals:
-#   None
+#   LOGFORMAT
 # Arguments:
-#   Stdout to delete comment ,a path. this param 
+#   All.
 # Outputs:
-#   Writes lines delete file_header.
+#   format 
 # Returns:
-#   0 if thing was deleted, non-zero on error.
+#   0 if thing was set alias, non-zero on error.
 # Example:
-#   cat file | file_exists
-#   file_exists file
+#   outinfo "Unable to do_something"  # => you use use sed
 #######################################
-function file_exists {
-
-  # $@がなかったら - を取るというふうに作る必要がある。
-  local filepath
-  for filepath in $@; do
-    if ! [ -e $filepath ]; then
-      echo "${filepath} is not exists." >&2
-      return 1
-    fi
-  done
+function outinfo() {
+  local logformat=$LOGFORMAT
+  if [ -z $logformat ]; then
+    logformat="%Y-%m-%dT%H:%M:%S%z"
+  fi
+  echo "[INFO $(date +"${logformat}")]: $*"
 }
 
 function main {
@@ -46,7 +41,7 @@ function main {
   # reindex assign.
   new_array=${new_array[@]}
 
-  file_exists $new_array
+  outinfo $new_array
 }
 
 main $@

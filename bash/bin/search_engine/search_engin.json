@@ -1,0 +1,36 @@
+{
+    "Google": {
+        "url": "https://google.co.jp/search",
+        "search_variable": "q"
+    },
+    "Bing": {
+        "url": "https://www.bing.com/search",
+        "search_variable": "q"
+    },
+    "Yahoo": {
+        "url": "https://search.yahoo.co.jp/search",
+        "search_variable": "p"
+    },
+    "Baidu": {
+        "url": "https://www.baidu.com/s",
+        "search_variable": "wd"
+    },
+    "YouTube": {
+        "url": "https://www.youtube.com/results",
+        "search_variable": "search_query"
+    },
+    "Amazon": {
+        "url": "https://www.amazon.co.jp/s",
+        "search_variable": "k"
+    },
+    "GCP": {
+        "url": "https://cloud.google.com/s/results",
+        "search_variable": "q",
+        "language": "hl"
+    },
+    "PornHub": {
+        "url": "https://www.pornhub.com/video/search",
+        "search_variable": "search",
+        "language": "hl"
+    }
+}

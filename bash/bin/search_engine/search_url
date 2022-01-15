@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# Comment, .env, file utils
+
+#######################################
+# translate text.
+# Globals:
+#   None
+# Arguments:
+#   text
+# Outputs:
+#   url using search engine
+# Returns:
+#   0 if , non-zero on error occured.
+# Example:
+#   search_url python google 宮迫 です! # => https://google.co.jp/search?q=python+google+%E5%AE%AE%E8%BF%AB+%E3%81%A7%E3%81%99%21
+#   open -a "Google Chrome" $(search_url python google 宮迫 です!)
+#######################################
+function search_url {
+
+  # set search eingine.
+  local engine
+  if [ $1 = '--engine' ]; then
+    engine=$2
+    shift 2
+  fi
+  if [ -z $engine ]; then
+    # if assign engine, use default search engine.
+    engine="Google"
+  fi
+
+  local engine_data=$(search_engine $engine)
+  if [ "$?" != "0" ]; then
+    return 1
+  fi
+
+  local url=$(echo $engine_data | jq -r .url)
+  local search_variable=$(echo $engine_data | jq -r .search_variable)
+
+  # [Big Sur Bug](https://developer.apple.com/forums/thread/663762)
+  # this bug urlencode
+  # example) "python deeplerning google"
+
+  local keywords=($@)
+  local i
+  for ((i=0;i<${#keywords[@]};i++)); do
+    keywords[$i]=$(url_encode ${keywords[$i]})
+  done
+  keywords="$(IFS=","; echo "${keywords[@]}")"
+  # half-width or full-width whitespace, replaced +.
+  keywords=${keywords// /+}
+  keywords=${keywords//　/+}
+  if [ -z $keywords ]; then
+    echo "assign search keyword!" >&2
+    return 1
+  fi
+
+  echo "${url}?${search_variable}=${keywords}"
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ ${new_array[$i]} = '--debug' ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  search_url $new_array
+}
+
+main $@
