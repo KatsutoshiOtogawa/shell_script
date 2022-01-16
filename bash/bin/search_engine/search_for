@@ -13,17 +13,15 @@
 # Returns:
 #   0 if , non-zero on error occured.
 # Example:
-#   search_for --engine YouTube --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
-#   
+#   open_search_app --engine YouTube --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
 #######################################
-function search_for {
+function open_search_app {
 
   local i
   local app
   local new_array=( $@ )
   for ((i=0;i<$#;i++)); do
     # if find --app flag from args, open 
-    # bashの正規表現で書けるかも
     if [ "${new_array[$i]}" = "--app" ]; then
       app="${new_array[$(($i + 1))]}"
       unset new_array[$i] new_array[$(($i + 1))]
@@ -41,6 +39,63 @@ function search_for {
     app="Google Chrome"
   fi
   open -a "${app}" $(search_url $new_array)
+
+}
+
+#######################################
+# translate text.
+# Globals:
+#   None
+# Arguments:
+#   text
+# Outputs:
+#   None
+# Returns:
+#   0 if , non-zero on error occured.
+# Example:
+#   search_for --engine YouTube --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
+#   # if you search several engine, delimiter ,
+#   search_for --engine YouTube,Amazon,GCP --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
+#######################################
+function search_for {
+  local i
+  local app
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --app flag from args, open 
+    if [ "${new_array[$i]}" = "--app" ]; then
+      app="${new_array[$(($i + 1))]}"
+      unset new_array[$i] new_array[$(($i + 1))]
+      # if value Microsoft or Google, split whitespace when param.
+      if [ "${app}" = "Microsoft" ] || [ "${app}" = "Google" ]; then
+        app="${app} ${new_array[$(($i + 2))]}"
+        unset new_array[$(($i + 2))]
+      fi
+    fi
+  done
+
+  if [ -z "${app}" ]; then
+    app="Google Chrome"
+  fi
+
+  # parse search engine
+  local engine
+  for ((i=0;i<$#;i++)); do
+    # if find --app flag from args, open 
+    if [ "${new_array[$i]}" = "--engine" ]; then
+
+      # engineというフラグを見つけた後が
+      engines=$(echo ${new_array[$(($i + 1))]} | sed "s/,/\n/g")
+      unset new_array[$i] new_array[$(($i + 1))]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  # using all engine call and search
+  for engine in $engines; do
+    open_search_app --engine $engine --app $app $new_array
+  done
 }
 
 function main {
