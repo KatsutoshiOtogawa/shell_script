@@ -1,36 +1,61 @@
 {
     "Google": {
-        "url": "https://google.co.jp/search",
-        "search_variable": "q"
+        "url": "https://google.co.jp/search?",
+        "search_variable": "q",
+        "search_operator": "+"
+    },
+    "ArchWiki": {
+        "url": "https://wiki.archlinux.jp/index.php?",
+        "search_variable": "search",
+        "search_operator": "+"
     },
     "Bing": {
-        "url": "https://www.bing.com/search",
-        "search_variable": "q"
+        "url": "https://www.bing.com/search?",
+        "search_variable": "q",
+        "search_operator": "+"
     },
     "Yahoo": {
-        "url": "https://search.yahoo.co.jp/search",
-        "search_variable": "p"
+        "url": "https://search.yahoo.co.jp/search?",
+        "search_variable": "p",
+        "search_operator": "+"
     },
     "Baidu": {
-        "url": "https://www.baidu.com/s",
-        "search_variable": "wd"
-    },
-    "YouTube": {
-        "url": "https://www.youtube.com/results",
-        "search_variable": "search_query"
+        "url": "https://www.baidu.com/s?",
+        "search_variable": "wd",
+        "search_operator": "+"
     },
     "Amazon": {
-        "url": "https://www.amazon.co.jp/s",
-        "search_variable": "k"
+        "url": "https://www.amazon.co.jp/s?",
+        "search_variable": "k",
+        "search_operator": "+"
     },
     "GCP": {
-        "url": "https://cloud.google.com/s/results",
+        "url": "https://cloud.google.com/s/results?",
         "search_variable": "q",
+        "search_operator": "%20",
         "language": "hl"
     },
+    "YouTube": {
+        "url": "https://www.youtube.com/results?",
+        "search_variable": "search_query",
+        "search_operator": "+"
+    },
     "PornHub": {
-        "url": "https://www.pornhub.com/video/search",
+        "url": "https://www.pornhub.com/video/search?",
         "search_variable": "search",
+        "search_operator": "+",
+        "language": "hl"
+    },
+    "DMM": {
+        "url": "https://www.dmm.com/search/=/",
+        "search_variable": "searchstr",
+        "search_operator": "%E3%80%80",
+        "language": "hl"
+    },
+    "FANZA": {
+        "url": "https://www.dmm.co.jp/search/=/",
+        "search_variable": "searchstr",
+        "search_operator": "%E3%80%80",
         "language": "hl"
     }
 }

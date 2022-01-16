@@ -36,6 +36,7 @@ function search_url {
 
   local url=$(echo $engine_data | jq -r .url)
   local search_variable=$(echo $engine_data | jq -r .search_variable)
+  local search_operator=$(echo $engine_data | jq -r .search_operator)
 
   # [Big Sur Bug](https://developer.apple.com/forums/thread/663762)
   # this bug urlencode
@@ -47,15 +48,15 @@ function search_url {
     keywords[$i]=$(url_encode ${keywords[$i]})
   done
   keywords="$(IFS=","; echo "${keywords[@]}")"
-  # half-width or full-width whitespace, replaced +.
-  keywords=${keywords// /+}
-  keywords=${keywords//　/+}
+  # half-width or full-width whitespace, replaced +, %20.
+  keywords=${keywords// /${search_operator}}
+  keywords=${keywords//　/${search_operator}}
   if [ -z $keywords ]; then
     echo "assign search keyword!" >&2
     return 1
   fi
 
-  echo "${url}?${search_variable}=${keywords}"
+  echo "${url}${search_variable}=${keywords}"
 }
 
 function main {
