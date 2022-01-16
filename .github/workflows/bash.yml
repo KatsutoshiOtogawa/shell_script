@@ -1,4 +1,4 @@
-name: Go
+name: Bash
 
 on:
   push:
@@ -22,5 +22,5 @@ jobs:
       run: mkdir staging && mv bin.tar.gz staging/
     - uses: actions/upload-artifact@v2
       with:
-        name: Package
+        name: bash
         path: staging
