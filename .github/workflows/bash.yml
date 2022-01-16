@@ -25,7 +25,7 @@ jobs:
     - name: add path bash/bin/build_support
       run: echo "bash/bin/build_support" >> $GITHUB_PATH
     - name: add permission
-      run: chmod u+x bash/bin
+      run: chmod u+x bash/bin/check_bash_version
     - name: check bash version
       run: check_bash_version
 #     - name: Test
