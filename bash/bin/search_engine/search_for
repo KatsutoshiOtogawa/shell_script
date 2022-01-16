@@ -65,5 +65,3 @@ function main {
 }
 
 main $@
-# と指定できるようにする。
-# --engine jjj
