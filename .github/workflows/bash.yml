@@ -2,7 +2,10 @@ name: Bash
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - dev
+
   pull_request:
     branches: [ main ]
 
@@ -12,6 +15,22 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
+
+    - name: add path
+      run: echo "bash/bin" >> $GITHUB_PATH
+    - name: add path bash/bin/gnu
+      run: echo "bash/bin/gnu" >> $GITHUB_PATH
+    - name: add path bash/bin/search_engin
+      run: echo "bash/bin/search_engine" >> $GITHUB_PATH
+    - name: add path bash/bin/build_support
+      run: echo "bash/bin/build_support" >> $GITHUB_PATH
+    # add exec
+    - name: add permission
+      run: chmod -R u+x bash/bin
+    - name: check bash version
+      run: check_bash_version
+    - name: outinfo
+      run: LOGFORMAT="%Y-%m-%dT%H:%M:%S%z" outinfo
 
 #     - name: Test
 #       run: bash/bin/

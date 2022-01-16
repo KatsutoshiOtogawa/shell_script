@@ -273,3 +273,6 @@ install -D ./bash/bin/* ~/bin/
 tar czvf bin.tar.gz ./bash/bin
 tar -zxvf bin.tar.gz -C ~/bin --strip-components=1 --no-same-owner
 
+
+pipenv lock -r --dev
+
