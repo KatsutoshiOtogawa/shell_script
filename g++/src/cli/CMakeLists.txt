@@ -37,22 +37,16 @@ find_package(Boost REQUIRED COMPONENTS
 
 find_package(Threads REQUIRED)
 
-# add_library(
-#   command SHARED lib/command.cc
-#   example SHARED lib/example.cc
-# )
+add_library(
+  command lib/command.cc
+  example lib/example.cc
+)
 
-# add_library(
-#   command SHARED lib/command.cc
-# )
-# add_library(
-#   example SHARED lib/example.cc
-# )
 # 外側からディレクトリを指定する時に使う。
-# add_subdirectory(
-#   example
-#   error
-# )
+add_subdirectory(
+  example
+  # error
+)
 
 add_executable(
   example
@@ -61,20 +55,19 @@ add_executable(
 )
 
 
-# -lpthread -l boost_options に相当
+# install(
+#     TARGETS foo
+#     LIBRARY DESTINATION lib
+#     ARCHIVE DESTINATION lib
+#     RUNTIME DESTINATION bin
+# )
+
 target_link_libraries(
   example
+  command
   Threads::Threads
   ${Boost_LIBRARIES}
 )
-
-# add_test
-
-# target_include_directories(mylib INTERFACE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# target_include_directories(mylib INTERFACE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # target_include_directories(Tutorial PUBLIC
 #   "${PROJECT_BINARY_DIR}"

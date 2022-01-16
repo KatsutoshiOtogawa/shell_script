@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <optional>
 #include <thread>
-#include "example.h"
+#include "../include/example.h"
 
 namespace cli {
     namespace example {

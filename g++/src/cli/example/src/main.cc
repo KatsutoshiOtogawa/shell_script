@@ -1,5 +1,5 @@
-#include "./lib/example.h"
-#include "./lib/command.h"
+#include "./include/example.h"
+#include "./include/command.h"
 
 // using cli::example::command::Invoke;
 int main(const int argc, const char *argv[]){

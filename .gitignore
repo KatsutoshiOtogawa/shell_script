@@ -1,6 +1,8 @@
 __pycache__
 node_modules
 
+Pipfile.lock
+
 go.sum
 go/pkg
 go/bin/*

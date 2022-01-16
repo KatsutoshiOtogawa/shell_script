@@ -6,8 +6,8 @@
 #include <optional>
 #include <filesystem>
 #include <thread>
-#include "example.h"
-#include "command.h"
+#include "../include/example.h"
+#include "../include/command.h"
 
 namespace cli {
     namespace example {

@@ -1,6 +1,7 @@
 #include <boost/beast.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include "../include/web.h"
 
 namespace cli {
     namespace example {
