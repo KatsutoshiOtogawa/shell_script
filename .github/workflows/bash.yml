@@ -13,17 +13,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-#     - name: Set up Go
-#       uses: actions/setup-go@v2
-#       with:
-#         go-version: 1.16
-
-#     - name: Build
-#       run: go build -v ./...
-
 #     - name: Test
-#       run: go test -v ./...
-  
+#       run: bash/bin/
     # package project files
     - name: compressive archive
       run: tar czvf bin.tar.gz bash/bin
