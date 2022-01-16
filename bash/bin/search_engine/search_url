@@ -37,6 +37,7 @@ function search_url {
   local url=$(echo $engine_data | jq -r .url)
   local search_variable=$(echo $engine_data | jq -r .search_variable)
   local search_operator=$(echo $engine_data | jq -r .search_operator)
+  local extension=$(echo $engine_data | jq -r .extension)
 
   # [Big Sur Bug](https://developer.apple.com/forums/thread/663762)
   # this bug urlencode
@@ -60,7 +61,7 @@ function search_url {
   if [ ! -z $search_variable ]; then
     search_variable="${search_variable}="
   fi
-  echo "${url}${search_variable}${keywords}"
+  echo "${url}${search_variable}${keywords}${extension}"
 }
 
 function main {
