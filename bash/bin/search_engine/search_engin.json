@@ -40,6 +40,11 @@
         "search_variable": "search_query",
         "search_operator": "+"
     },
+    "nicozon": {
+        "url": "https://www.nicozon.net/search/",
+        "search_variable": "",
+        "search_operator": "%20"
+    },
     "PornHub": {
         "url": "https://www.pornhub.com/video/search?",
         "search_variable": "search",

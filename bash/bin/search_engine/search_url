@@ -56,7 +56,11 @@ function search_url {
     return 1
   fi
 
-  echo "${url}${search_variable}=${keywords}"
+  # if url parameter notexists, not required = 
+  if [ ! -z $search_variable ]; then
+    search_variable="${search_variable}="
+  fi
+  echo "${url}${search_variable}${keywords}"
 }
 
 function main {
