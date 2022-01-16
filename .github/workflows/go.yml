@@ -28,7 +28,7 @@ jobs:
     - name: compressive archive
       run: tar czvf bin.tar.gz bash/bin
     - name: staging
-      run: mkdir staging && mv gobuild.tar.gz staging/
+      run: mkdir staging && mv bin.tar.gz staging/
     - uses: actions/upload-artifact@v2
       with:
         name: Package
