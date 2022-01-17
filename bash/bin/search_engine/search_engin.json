@@ -2,59 +2,100 @@
     "Google": {
         "url": "https://google.co.jp/search?",
         "search_variable": "q",
+        "type": [
+            "general"
+        ],
+        "search_operator": "+",
+        "extension": ""
+    },
+    "DuckDuckGo": {
+        "url": "https://duckduckgo.com/?",
+        "search_variable": "q",
+        "type": [
+            "general"
+        ],
         "search_operator": "+",
         "extension": ""
     },
     "GitHub": {
         "url": "https://github.com/search?",
+        "type": [
+            "coding"
+        ],
         "search_variable": "q",
         "search_operator": "+",
         "extension": ""
     },
     "OracleBlog": {
         "url": "https://blogs.oracle.com/otnjp/search.html?contentType=Blog-Post&",
+        "type": [
+            "DB"
+        ],
         "search_variable": "default",
         "search_operator": "%20",
         "extension": "*"
     },
     "ArchWiki": {
         "url": "https://wiki.archlinux.jp/index.php?",
+        "type": [
+            "coding",
+            "Linux"
+        ],
         "search_variable": "search",
         "search_operator": "+",
         "extension": ""
     },
     "Bing": {
         "url": "https://www.bing.com/search?",
+        "type": [
+            "general"
+        ],
         "search_variable": "q",
         "search_operator": "+",
         "extension": ""
     },
     "Yahoo": {
         "url": "https://search.yahoo.co.jp/search?",
+        "type": [
+            "general"
+        ],
         "search_variable": "p",
         "search_operator": "+",
         "extension": ""
     },
     "Baidu": {
         "url": "https://www.baidu.com/s?",
+        "type": [
+            "general"
+        ],
         "search_variable": "wd",
         "search_operator": "+",
         "extension": ""
     },
     "Amazon": {
         "url": "https://www.amazon.co.jp/s?",
+        "type": [
+            "ec"
+        ],
         "search_variable": "k",
         "search_operator": "+",
         "extension": ""
     },
     "AmebaBlog": {
         "url": "https://search.ameba.jp/search/",
+        "type": [
+            "talent"
+        ],
         "search_variable": "",
         "search_operator": "%20",
         "extension": ".html"
     },
     "GCP": {
         "url": "https://cloud.google.com/s/results?",
+        "type": [
+            "coding",
+            "cloud"
+        ],
         "search_variable": "q",
         "search_operator": "%20",
         "language": "hl",
@@ -62,30 +103,48 @@
     },
     "YouTube": {
         "url": "https://www.youtube.com/results?",
+        "type": [
+            "movie",
+            "general"
+        ],
         "search_variable": "search_query",
         "search_operator": "+",
         "extension": ""
     },
     "FC2": {
         "url": "https://video.fc2.com/search/video/?",
+        "type": [
+            "movie"
+        ],
         "search_variable": "keyword",
         "search_operator": "+",
         "extension": ""
     },
     "FC2Adult": {
         "url": "https://video.fc2.com/a/search/video/?",
+        "type": [
+            "movie",
+            "adult"
+        ],
         "search_variable": "keyword",
         "search_operator": "+",
         "extension": ""
     },
     "nicozon": {
         "url": "https://www.nicozon.net/search/",
+        "type": [
+            "movie"
+        ],
         "search_variable": "",
         "search_operator": "%20",
         "extension": ""
     },
     "PornHub": {
         "url": "https://www.pornhub.com/video/search?",
+        "type": [
+            "movie",
+            "adult"
+        ],
         "search_variable": "search",
         "search_operator": "+",
         "language": "hl",
@@ -93,6 +152,10 @@
     },
     "RedTube": {
         "url": "https://www.redtube.com/?",
+        "type": [
+            "movie",
+            "adult"
+        ],
         "search_variable": "search",
         "search_operator": "+",
         "language": "hl",
@@ -100,6 +163,10 @@
     },
     "XVIDEOS": {
         "url": "https://www.xvideos.com/?",
+        "type": [
+            "movie",
+            "adult"
+        ],
         "search_variable": "k",
         "search_operator": "+",
         "language": "hl",
@@ -107,6 +174,9 @@
     },
     "DMM": {
         "url": "https://www.dmm.com/search/=/",
+        "type": [
+            "ec"
+        ],
         "search_variable": "searchstr",
         "search_operator": "%E3%80%80",
         "language": "hl",
@@ -114,11 +184,13 @@
     },
     "FANZA": {
         "url": "https://www.dmm.co.jp/search/=/",
+        "type": [
+            "ec",
+            "adult"
+        ],
         "search_variable": "searchstr",
         "search_operator": "%E3%80%80",
         "language": "hl",
         "extension": ""
     }
 }
-
-

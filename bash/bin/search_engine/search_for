@@ -36,9 +36,13 @@ function open_search_app {
   new_array=${new_array[@]}
 
   if [ -z "${app}" ]; then
-    app="Google Chrome"
+    app="Chrome"
   fi
-  open -a "${app}" $(search_url $new_array)
+
+  local filepath=$(realpath $(dirname $0))
+  local browser=$(jq -r ."${app}" ${filepath}/browser.json)
+
+  open -a "${browser}" $(search_url $new_array)
 
 }
 
@@ -58,27 +62,10 @@ function open_search_app {
 #   search_for --engine YouTube,Amazon,GCP --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
 #######################################
 function search_for {
-  local i
-  local app
-  local new_array=( $@ )
-  for ((i=0;i<$#;i++)); do
-    # if find --app flag from args, open 
-    if [ "${new_array[$i]}" = "--app" ]; then
-      app="${new_array[$(($i + 1))]}"
-      unset new_array[$i] new_array[$(($i + 1))]
-      # if value Microsoft or Google, split whitespace when param.
-      if [ "${app}" = "Microsoft" ] || [ "${app}" = "Google" ]; then
-        app="${app} ${new_array[$(($i + 2))]}"
-        unset new_array[$(($i + 2))]
-      fi
-    fi
-  done
-
-  if [ -z "${app}" ]; then
-    app="Google Chrome"
-  fi
 
   # parse search engine
+  local i
+  local new_array=( $@ )
   local engine
   for ((i=0;i<$#;i++)); do
     # if find --app flag from args, open 
@@ -94,7 +81,7 @@ function search_for {
 
   # using all engine call and search
   for engine in $engines; do
-    open_search_app --engine $engine --app $app $new_array
+    open_search_app --engine $engine $new_array
   done
 }
 
