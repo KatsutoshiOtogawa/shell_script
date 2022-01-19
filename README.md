@@ -276,3 +276,21 @@ tar -zxvf bin.tar.gz -C ~/bin --strip-components=1 --no-same-owner
 
 pipenv lock -r --dev
 
+```bash
+# if [ -z $IS_LOG ]; then
+#   local log_file=(date +"%Y/%m/%d.log")
+#   outinfo "set engine google" >> $LOG_DIR/$log_file
+# fi
+
+
+# site:www.postgresql.jp/document/13
+# みたいなのはどうしよう?結局queryに入る
+
+for ((i=0;i<$#;i++)); do
+  # if find --log flag from args, start debug mode.
+  if [ ${new_array[$i]} = '--log' ]; then
+    export IS_LOG=IS_LOG
+    unset new_array[$i]
+  fi
+done
+```
