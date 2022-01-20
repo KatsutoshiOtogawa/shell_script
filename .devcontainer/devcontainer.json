@@ -34,6 +34,9 @@
 		"GO111MODULE": "on",
         "GOPATH": "/workspaces/shell_script/go"
     },
+    "remoteEnv": {
+		"PATH": "${containerEnv:PATH}:/workspace/bash/bin:/workspace/bash/bin/gnu:/workspace/bash/bin/search_engine:/workspace/bash/bin/build_support",
+	},
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"features": {
