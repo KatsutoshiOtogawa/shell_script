@@ -61,7 +61,7 @@ function main {
   local new_array=( $@ )
   for ((i=0;i<$#;i++)); do
     if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
-      usage()
+      usage
       return
     fi
     # if find --debug flag from args, start debug mode.
