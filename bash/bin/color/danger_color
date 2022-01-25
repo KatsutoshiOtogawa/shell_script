@@ -1,0 +1,75 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# stain color for info.
+# Globals:
+#   None
+# Arguments:
+#   All.
+# Outputs:
+#   format 
+# Returns:
+#   0 if thing was set alias, non-zero on error.
+# Example:
+#   cat << END | danger_color --fields 3-
+#   # out put color 3~last column.
+#######################################
+function danger_color() {
+
+  local filepath=$(realpath $(dirname $0))
+  local color=$(jq -r .danger ${filepath}/color.json)
+
+  if [ "null" = "$color" ]; then
+    echo "cannot find you specify color!" >&2
+    return 1
+  fi
+
+  set_color --color $color $@
+}
+
+function usage() {
+    cat 1>&2 <<EOF
+danger_color
+output search engine setting
+
+USAGE:
+    danger_color [FLAGS] [OPTIONS]
+
+FLAGS:
+    -f, --fields            Show usable search engines.
+    -h, --help              Prints help information
+
+OPTIONS:
+    -d, --delim             set for parse. default value is comma ",".
+    --debug                 Set bash debug Option
+EOF
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
+      usage
+      return
+    fi
+    # if find --debug flag from args, start debug mode.
+    if [ "${new_array[$i]}" = "--debug" ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  danger_color $new_array
+}
+
+main $@
