@@ -13,17 +13,35 @@
 # Returns:
 #   0 if  set alias, non-zero on error.
 # Example:
-#   gnu_alias # => you use use sed
+#   search_engine # => you use use sed
 #######################################
 function search_engine {
 
   local filepath=$(realpath $(dirname $0))
 
+  # if assign value output engine list.
+  if [ "$1" = '-l' ] || [ "$1" = "--list" ] ; then
+    jq -r 'keys[]' ${filepath}/search_engin.json
+    return
+  fi
+
+  # outpout engine detail.
+  if [ "$1" = '-d' ] || [ "$1" = '--detail' ]; then
+    if [ -z $2 ]; then
+      echo "assign parameter search engine" >&2
+      return 1
+    fi
+    jq -r .$2 ${filepath}/search_engin.json
+    return
+  fi
+
+  # ここから先は他のコマンドから呼ぶことを考えている。
   local search_engine=$1
   if [ -z $search_engine ]; then
     echo "assign search_engine value!" >&2
     return 1
   fi
+  
   local engine=$(jq -r .${search_engine} ${filepath}/search_engin.json)
 
   if [ "null" = "$engine" ]; then
@@ -34,11 +52,33 @@ function search_engine {
   echo $engine
 }
 
+function usage() {
+    cat 1>&2 <<EOF
+search_engine
+output search engine setting
+
+USAGE:
+    search_engine [FLAGS] [OPTIONS]
+
+FLAGS:
+    -l, --list              Show usable search engines.
+    -d, --detail            Show search engine detail
+    -h, --help              Prints help information
+
+OPTIONS:
+    --debug                 Set bash debug Option
+EOF
+}
+
 function main {
 
   local i
   local new_array=( $@ )
   for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
+      usage
+      return
+    fi
     # if find --debug flag from args, start debug mode.
     if [ "${new_array[$i]}" = "--debug" ]; then
       set -x

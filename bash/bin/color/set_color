@@ -1,0 +1,189 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# stain color for info.
+# Globals:
+#   None
+# Arguments:
+#   All.
+# Outputs:
+#   format 
+# Returns:
+#   0 if thing was set alias, non-zero on error.
+# Example:
+#   cat << END | set_color --color "\e[1;37;41m" --fields 3-
+#   # out put color 3~last column.
+#######################################
+function set_color() {
+
+  # set default value
+  local delim=','
+
+  local color
+  local allreset='\e[0m'
+  # escape for awk, xargs and below this line. twice 2^3
+  local escape_allreset=${allreset//\\/\\\\\\\\}
+  local fields
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --fields flag from args, open 
+    if [ "${new_array[$i]}" = "--fields" ] || [ "${new_array[$i]}" = "-f" ]; then
+      fields="${new_array[$(($i + 1))]}"
+      unset new_array[$i] new_array[$(($i + 1))]
+      # if not assign value return 1
+      # allow start hypen ^- for value example "-3", "-5" and more.
+      if [[ ${fields} =~ ^-- ]] || [ -z $fields ] ; then
+        echo "not assign value fields" >&2
+        return 1
+      fi
+    fi
+    if [ "${new_array[$i]}" = "--delim" ] || [ "${new_array[$i]}" = "-d" ]; then
+      delim="${new_array[$(($i + 1))]}"
+      unset new_array[$i] new_array[$(($i + 1))]
+      # if not assign value return 1
+      if [[ ${delim} =~ ^- ]] || [ -z $delim ] ; then
+        echo "not assign value delimiter" >&2
+        return 1
+      fi
+    fi
+    if [ "${new_array[$i]}" = "--color" ] || [ "${new_array[$i]}" = "-c" ]; then
+      color="${new_array[$(($i + 1))]}"
+      unset new_array[$i] new_array[$(($i + 1))]
+      # if not assign value return 1
+      if [[ ${color} =~ ^- ]] || [ -z $color ] ; then
+        echo "not assign value color" >&2
+        return 1
+      fi
+    fi
+  done
+
+  if [ -z "${fields}" ]; then
+    echo "set you want to use column num!" >&2
+    return 1
+  fi
+
+  if [ -z "${color}" ]; then
+    echo "set you want to use color!" >&2
+    return 1
+  fi
+  # escape for awk, xargs and below this line. twice 2^3
+  local escape_color=${color//\\/\\\\\\\\}
+
+  # 最初にsplitで,の位置で分割
+  fields=(${fields//,/ })
+  for ((i=0;i< ${#fields[@]};i++));  do
+    if echo ${fields[$i]} | grep "-" > /dev/null; then
+      if [[ ${fields[$i]} =~ ^-$ ]]; then
+        echo "set field separator start or end!" >&2
+        return 1
+      fi
+      if [[ ${fields[$i]} =~ ^- ]]; then
+        fields[$i]="1${fields[$i]}"
+      fi
+    fi
+  done
+  # 連想配列の時のパースの仕方にくせがあるのか、下だと文字列にして渡せない。
+  # awkの引数に文字列に空白文字列
+  # awk -F $delimiter -v escape_colorset=$escape_colorset -v escape_allreset=$escape_allreset -v fields="${fields[@]}" '
+  # absorb the diffrence from mwak and gawk
+  awk -F $delim -v escape_color=$escape_color -v escape_allreset=$escape_allreset -v fields="$(echo ${fields[@]})" '
+  # reverse function.
+  # ex) abcdef -> fedcba
+  function rev(str){
+
+    revstr=""
+    for(i=length(str);i>=1;i--){
+      revstr=revstr substr(str, i, 1)
+    }
+    return revstr
+  }
+  BEGIN{
+    # set field_list for specify column.
+    split(fields, field_list, " ")
+  }
+  {
+    line=""
+    for(i=1;i<=NF;i++){
+      for(j=1; j<=length(field_list);j++ ){
+
+        # set ex) "3-" -> "3-NF"
+        if (match(field_list[j], /-$/)) {
+          field_list[j]=field_list[j] NF
+        }
+
+        if (field_list[j] == i) {
+          $i=escape_color $i escape_allreset
+
+        # if "-" separate value, "start"-"end"
+        # example 1-3 loop, 1,2,3
+        } else if (match(field_list[j], /-/)) {
+          split(field_list[j], between, "-")
+          # between N and M
+          # example 1-3, N=1 M=3
+          for(k=between[1];k<=between[2];k++){
+            if (k == i) {
+              $i=escape_color $i escape_allreset
+            }
+          }
+        }
+      }
+      # add FS for ouput.
+      line=line $i FS
+    }
+    # reverse line for converting from behind.
+    line=rev(line)
+    sub(FS, "", line)
+    line=rev(line)
+    print line
+  }' | xargs -I {} echo -e {}
+  
+}
+
+function usage() {
+    cat 1>&2 <<EOF
+set_color
+output search engine setting
+
+USAGE:
+    set_color [FLAGS] [OPTIONS]
+
+FLAGS:
+    -c, --color             Set you want to output color.
+    -f, --fields            Show usable search engines.
+    -h, --help              Prints help information
+
+OPTIONS:
+    -d, --delim             set for parse. default value is comma ",".
+    --debug                 Set bash debug Option
+EOF
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
+      usage
+      return
+    fi
+    # if find --debug flag from args, start debug mode.
+    if [ "${new_array[$i]}" = "--debug" ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  set_color $new_array
+}
+
+main $@

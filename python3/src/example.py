@@ -1,6 +1,6 @@
 import sys
 import fire
-from version import Version
+from .version import Version
 from typing import Union, Optional
 import pexpect
 

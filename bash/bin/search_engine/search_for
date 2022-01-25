@@ -13,17 +13,15 @@
 # Returns:
 #   0 if , non-zero on error occured.
 # Example:
-#   search_for --engine YouTube --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
-#   
+#   open_search_app --engine YouTube --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
 #######################################
-function search_for {
+function open_search_app {
 
   local i
   local app
   local new_array=( $@ )
   for ((i=0;i<$#;i++)); do
     # if find --app flag from args, open 
-    # bashの正規表現で書けるかも
     if [ "${new_array[$i]}" = "--app" ]; then
       app="${new_array[$(($i + 1))]}"
       unset new_array[$i] new_array[$(($i + 1))]
@@ -38,9 +36,71 @@ function search_for {
   new_array=${new_array[@]}
 
   if [ -z "${app}" ]; then
-    app="Google Chrome"
+    app="Chrome"
   fi
-  open -a "${app}" $(search_url $new_array)
+
+  local filepath=$(realpath $(dirname $0))
+  local browser=$(jq -r ."${app}" ${filepath}/browser.json)
+
+  open -a "${browser}" $(search_url $new_array)
+
+}
+
+#######################################
+# translate text.
+# Globals:
+#   None
+# Arguments:
+#   text
+# Outputs:
+#   None
+# Returns:
+#   0 if , non-zero on error occured.
+# Example:
+#   search_for --engine YouTube --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
+#   # if you search several engine, delimiter ,
+#   search_for --engine YouTube,Amazon,GCP --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
+#######################################
+function search_for {
+
+  # parse search engine
+  local i
+  local new_array=( $@ )
+  local engine
+  for ((i=0;i<$#;i++)); do
+    # if find --app flag from args, open 
+    if [ "${new_array[$i]}" = "--engine" ]; then
+
+      # engineというフラグを見つけた後が
+      engines=$(echo ${new_array[$(($i + 1))]} | sed "s/,/\n/g")
+      unset new_array[$i] new_array[$(($i + 1))]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  # using all engine call and search
+  for engine in $engines; do
+    open_search_app --engine $engine $new_array
+  done
+}
+
+function usage() {
+    cat 1>&2 <<EOF
+search_engine
+output search engine setting
+
+USAGE:
+    search_engine [FLAGS] [OPTIONS]
+
+FLAGS:
+    -l, --list              Show usable search engines.
+    -d, --detail            Show search engine detail
+    -h, --help              Prints help information
+
+OPTIONS:
+    --debug                 Set bash debug Option
+EOF
 }
 
 function main {
@@ -48,6 +108,10 @@ function main {
   local i
   local new_array=( $@ )
   for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
+      usage
+      return
+    fi
     # if find --debug flag from args, start debug mode.
     if [ "${new_array[$i]}" = "--debug" ]; then
       set -x
@@ -65,5 +129,3 @@ function main {
 }
 
 main $@
-# と指定できるようにする。
-# --engine jjj

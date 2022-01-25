@@ -3,9 +3,9 @@
 # gnu command util.
 
 #######################################
-# write stdout syntax. google style(https://google.github.io/styleguide/shellguide.html)
+# stain color for info.
 # Globals:
-#   LOGFORMAT
+#   None
 # Arguments:
 #   All.
 # Outputs:
@@ -13,30 +13,36 @@
 # Returns:
 #   0 if thing was set alias, non-zero on error.
 # Example:
-#   outinfo "Unable to do_something"  # => you use use sed
+#   cat << END | danger_color --fields 3-
+#   # out put color 3~last column.
 #######################################
-function outinfo() {
-  local logformat=$LOGFORMAT
-  if [ -z $logformat ]; then
-    logformat="%Y-%m-%dT%H:%M:%S%z"
+function danger_color() {
+
+  local filepath=$(realpath $(dirname $0))
+  local color=$(jq -r .danger ${filepath}/color.json)
+
+  if [ "null" = "$color" ]; then
+    echo "cannot find you specify color!" >&2
+    return 1
   fi
-  echo "[INFO $(date +"${logformat}")]: $*"
+
+  set_color --color $color $@
 }
 
 function usage() {
     cat 1>&2 <<EOF
-search_engine
+danger_color
 output search engine setting
 
 USAGE:
-    search_engine [FLAGS] [OPTIONS]
+    danger_color [FLAGS] [OPTIONS]
 
 FLAGS:
-    -l, --list              Show usable search engines.
-    -d, --detail            Show search engine detail
+    -f, --fields            Show usable search engines.
     -h, --help              Prints help information
 
 OPTIONS:
+    -d, --delim             set for parse. default value is comma ",".
     --debug                 Set bash debug Option
 EOF
 }
@@ -63,7 +69,7 @@ function main {
   # reindex assign.
   new_array=${new_array[@]}
 
-  outinfo $new_array
+  danger_color $new_array
 }
 
 main $@

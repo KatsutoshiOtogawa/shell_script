@@ -25,6 +25,19 @@ RUN wget https://go.dev/dl/go1.17.5.linux-amd64.tar.gz \
 # install golang debugger
 RUN go install github.com/go-delve/delve/cmd/dlv@v1.3.2
 
+# install rustc
+# 1.48 rust 
+# RUN apt install -y rustc
+# cargo 'add and uprade and remove command' install.
+# RUN cargo install cargo-edit
+
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > /home/vscode/rustup.sh
+RUN chown vscode /home/vscode/rustup.sh && chmod u+x /home/vscode/rustup.sh
+RUN su - vscode -c "/home/vscode/rustup.sh -y"
+RUN rm /home/vscode/rustup.sh
+
+RUN su - vscode -c "rustup component add rls rust-analysis rust-src"
 RUN apt install -y sqlite3 \
     libsqlite3-dev
 

@@ -37,6 +37,7 @@ function search_url {
   local url=$(echo $engine_data | jq -r .url)
   local search_variable=$(echo $engine_data | jq -r .search_variable)
   local search_operator=$(echo $engine_data | jq -r .search_operator)
+  local extension=$(echo $engine_data | jq -r .extension)
 
   # [Big Sur Bug](https://developer.apple.com/forums/thread/663762)
   # this bug urlencode
@@ -56,7 +57,29 @@ function search_url {
     return 1
   fi
 
-  echo "${url}${search_variable}=${keywords}"
+  # if url parameter notexists, not required = 
+  if [ ! -z $search_variable ]; then
+    search_variable="${search_variable}="
+  fi
+  echo "${url}${search_variable}${keywords}${extension}"
+}
+
+function usage() {
+    cat 1>&2 <<EOF
+search_engine
+output search engine setting
+
+USAGE:
+    search_engine [FLAGS] [OPTIONS]
+
+FLAGS:
+    -l, --list              Show usable search engines.
+    -d, --detail            Show search engine detail
+    -h, --help              Prints help information
+
+OPTIONS:
+    --debug                 Set bash debug Option
+EOF
 }
 
 function main {
@@ -64,6 +87,10 @@ function main {
   local i
   local new_array=( $@ )
   for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
+      usage
+      return
+    fi
     # if find --debug flag from args, start debug mode.
     if [ ${new_array[$i]} = '--debug' ]; then
       set -x

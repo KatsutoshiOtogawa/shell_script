@@ -1,0 +1,148 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# select menu items
+# Globals:
+#   PS3
+#   REPLY
+# Arguments:
+#   PS3 variable
+#   after args menu items.
+# Outputs:
+#   None
+# Returns:
+#   0 if select exists menu, non-zero on error occured.
+# Example:
+#   $ select_menu 'your like cooking' hamburger curry sushi
+#   1) hamburger
+#   2) curry
+#   3) sushi
+#   your like cooking. Enter 'q' for cancel. > 1
+#   $ if "${?}" != 0; then
+#   >   echo 'error occured select_menu function.' >&2
+#   >   return 1 
+#   > fi
+#   $ if "${REPLY}" = 'q'; then
+#   >   echo 'user cancel' 
+#   >   return
+#   > fi
+#   $ echo $REPLY 
+#######################################
+function select_menu {
+  # check input select message
+  if [ -z $1 ]; then
+    echo 'input select message!' >&2
+    return 1
+  fi
+  PS3="${1} Enter 'q' for cancel. > "
+  # args after two index, assined menu variable.
+  local menu=(${@:2:($#-1)})
+  if [ -z $menu ]; then
+    echo 'set variable for select menu' >&2
+    return 1
+  fi
+  # loop for select menu.
+  local item
+  select item in "${menu[@]}"
+  do
+    if [ "${REPLY}" = "q" ]; then
+      return
+    fi
+    # break loop for select existing menu.
+    if [ -z $item ]; then
+      break
+    fi
+    echo "invalid selection. choose select menu" >&2
+  done
+}
+
+#######################################
+# write stderr syntax. google style(https://google.github.io/styleguide/shellguide.html)
+# Globals:
+#   LOGFORMAT
+# Arguments:
+#   All.
+# Outputs:
+#   format 
+# Returns:
+#   0 if thing was set alias, non-zero on error.
+# Example:
+#   url_encode "Unable to do_something"  # => you use use sed
+#######################################
+function text_expect() {
+
+  local i
+  local title
+  local css
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--title" ]; then
+      title=${new_array[$(($i+1))]}
+      # if next index start '-', this value is option.
+      if echo $title | grep ^- > /dev/null; then
+        echo "set title txt!" >&2
+        return 1
+      fi
+      unset new_array[$i] new_array[$(($i + 1))]
+    fi
+    if [ "${new_array[$i]}" = "--css" ]; then
+      css=${new_array[$(($i+1))]}
+      # if next index start '-', this value is option.
+      if echo $css | grep ^- > /dev/null; then
+        echo "set css!" >&2
+        return 1
+      fi
+      unset new_array[$i] new_array[$(($i + 1))]
+    fi
+    if [ "${new_array[$i]}" = "--cover" ]; then
+      cover=${new_array[$(($i+1))]}
+      # if next index start '-', this value is option.
+      if echo $cover | grep ^- > /dev/null; then
+        echo "set cover!" >&2
+        return 1
+      fi
+      unset new_array[$i] new_array[$(($i + 1))]
+    fi
+  done
+
+  local manuscript=${new_array[@]}
+  # --title
+  # title.txt
+  
+  local out=${manuscript//\.md/\.epub}
+  # --css
+  # cover.jpg
+  pandoc -f markdown \
+    -t epub3 \
+    $manuscript \
+    $title \
+    -o $out \
+    --css $css \
+    --toc --toc-depth=2 \
+    --epub-cover-image=$cover
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --debug flag from args, start debug mode.
+    if [ "${new_array[$i]}" = "--debug" ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  url_encode $new_array
+}
+
+main $@

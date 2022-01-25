@@ -2,7 +2,7 @@
 from collections import namedtuple
 import sys
 import fire
-from version import Version
+from .version import Version
 import subprocess
 from copy import deepcopy
 from subprocess import CalledProcessError
