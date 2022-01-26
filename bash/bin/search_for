@@ -13,7 +13,7 @@
 # Returns:
 #   0 if , non-zero on error occured.
 # Example:
-#   open_search_app --engine YouTube --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
+#   open_search_app --engine YouTube --app "Edge" python golang # => launch Microsoft Edge and search.
 #######################################
 function open_search_app {
 
@@ -57,9 +57,9 @@ function open_search_app {
 # Returns:
 #   0 if , non-zero on error occured.
 # Example:
-#   search_for --engine YouTube --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
+#   search_for --engine YouTube --app "Edge" python golang # => launch Microsoft Edge and search.
 #   # if you search several engine, delimiter ,
-#   search_for --engine YouTube,Amazon,GCP --app "Microsoft Edge" python golang # => launch Microsoft Edge and search.
+#   search_for --engine YouTube,Amazon,GCP --app "Edge" python golang # => launch Microsoft Edge and search.
 #######################################
 function search_for {
 
