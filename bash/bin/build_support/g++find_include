@@ -17,7 +17,7 @@
 #######################################
 function g++find_include {
 
-  if ! source $(which gnu_alias); then
+  if ! gnu_alias; then
     return 1;
   fi
 

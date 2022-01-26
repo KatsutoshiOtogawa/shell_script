@@ -19,7 +19,7 @@
 function set_color() {
 
   # set gnu alias.
-  if ! source $(which gnu_alias); then
+  if ! gnu_alias; then
     return 1;
   fi
   # set default value

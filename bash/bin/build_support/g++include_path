@@ -17,7 +17,7 @@
 #######################################
 function g++include_path () {
   # set gnu alias.
-  if ! source $(which gnu_alias); then
+  if ! gnu_alias; then
     return 1;
   fi
   local tmpfile=$(mktemp)
