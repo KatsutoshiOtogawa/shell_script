@@ -17,17 +17,13 @@
 #  check_bash_version #=> 1 you use old version bash
 #######################################
 function check_bash_version {
-  # set gnu alias.
-  if ! gnu_alias; then
-    return 1;
-  fi
   
   local min_support=$BASH_VERSION_MIN_SUPPORT
   # if BASH_VERSION_MIN_SUPPORT not exists, require for bash version 5.
   if [ $min_support -z ]; then
     min_support=5
   fi
-  local version=`echo $BASH_VERSION | cut -c -1`
+  local version=${BASH_VERSION:0:1}
 
   if [ $version -lt $min_support ]; then
     echo "you use old version bash. use greater ${min_support} version" >&2
