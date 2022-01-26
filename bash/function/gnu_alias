@@ -49,7 +49,7 @@ function gnu_alias {
     # alias date=gdate
     # alias cut=gcut
 
-    export GNU_ALIAS=GNU_ALIAS
+    export GNU_ALIAS=yes
   fi
 }
 

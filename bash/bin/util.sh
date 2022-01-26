@@ -18,6 +18,7 @@
 #######################################
 function delete_file_header {
   # set gnu alias.
+  source $(dirname $0)/../function/gnu_alias
   if ! gnu_alias; then
     return 1;
   fi
@@ -49,6 +50,7 @@ function delete_file_header {
 #######################################
 function cat_map_delete_file_header {
   # set gnu alias.
+  source $(dirname $0)/../function/gnu_alias
   if ! gnu_alias; then
     return 1;
   fi

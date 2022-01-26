@@ -17,6 +17,7 @@
 #######################################
 function g++library_path {
   # set gnu alias.
+  source $(dirname $0)/../function/gnu_alias
   if ! gnu_alias; then
     return 1;
   fi
