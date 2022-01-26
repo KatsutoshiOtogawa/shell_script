@@ -4,6 +4,7 @@
 
 function create_cal() {
   # set gnu alias.
+  source $(dirname $0)/../function/gnu_alias
   if ! gnu_alias; then
     return 1;
   fi
@@ -12,6 +13,7 @@ function create_cal() {
 
 function create_date {
   # set gnu alias.
+  source $(dirname $0)/../function/gnu_alias
   if ! gnu_alias; then
     return 1;
   fi
@@ -34,6 +36,7 @@ function create_date {
 #######################################
 function type_worklog() {
   # set gnu alias.
+  source $(dirname $0)/../function/gnu_alias
   if ! gnu_alias; then
     return 1;
   fi
