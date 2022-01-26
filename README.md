@@ -294,3 +294,19 @@ for ((i=0;i<$#;i++)); do
   fi
 done
 ```
+
+## unzip
+
+```bash
+# expand file
+unzip bash_script.zip
+tar -zxvf -u bash_script.tar.gz -C ~/
+# expand to ~/bash
+
+# export path 
+export PATH=$PATH:$HOME/bash/bin
+export PATH=$PATH:$HOME/bash/bin/build_support
+export PATH=$PATH:$HOME/bash/bin/color
+export PATH=$PATH:$HOME/bash/bin/gnu
+export PATH=$PATH:$HOME/bash/bin/search_engine
+```

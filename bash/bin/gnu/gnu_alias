@@ -27,13 +27,32 @@ function gnu_alias {
       echo "Any Gnu command is not exists." >&2
       return 1
     fi
-    # 環境変数 SEDを作ってマッピングして後で消すという方法もある。
-    alias sed=gsed
-    alias awk=gawk
-    alias xargs=gxargs
-    alias find=gfind
-    alias date=gdate
-    alias cut=gcut
+    # alias not using shellscript in norepl.
+    # and using function for alternative alias.
+    function sed {
+      gsed "$@"
+    }
+    function awk {
+      gawk "$@"
+    }
+    function xargs {
+      gxargs "$@"
+    }
+    function find {
+      gfind "$@"
+    }
+    function date {
+      gdate "$@"
+    }
+    function cut {
+      gcut "$@"
+    }
+    # alias sed=gsed
+    # alias awk=gawk
+    # alias xargs=gxargs
+    # alias find=gfind
+    # alias date=gdate
+    # alias cut=gcut
 
     export GNU_ALIAS=GNU_ALIAS
   fi
