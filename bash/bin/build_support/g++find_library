@@ -13,15 +13,31 @@
 # Returns:
 #   0 if find library, non-zero on error or not found library.
 # Example:
-#   g++find_library libsodium.so => show
+#   g++find_library libboost_program_options => show /usr/lib/x86_64-linux-gnu/libboost_program_options.a and /usr/lib/x86_64-linux-gnu/libboost_program_options.so
 #######################################
 function g++find_library {
-  local library_file=$1
-  # if $include_file not exists, return function.
+
+  local detail
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --fields flag from args, open 
+    if [ "${new_array[$i]}" = "--detail" ] || [ "${new_array[$i]}" = "-d" ]; then
+      detail=yes
+      unset new_array[$i]
+    fi
+  done
+
+  # reindex
+  new_array=${new_array[@]}
+  local library_file=${new_array[0]}
+  # if $library_file not exists, return function.
   if [ -z $library_file ]; then
-      echo "${library_file} is not exists." >&2
+      echo "args library_file is not exists." >&2
       return 1
   fi
+
+  # library_file=${library_file//(\.so|\.a)//}
 
   # set gnu alias.
   if [ -z $GNU_ALIAS ]; then
@@ -30,29 +46,51 @@ function g++find_library {
     fi
   fi
 
-  local library_files=$(g++library_path | \
-    xargs -I {} find {} -name ${library_file})
-
-  # if doesn't match path, return 1
-  if [ -z $library_files ]; then
+  local library_files=$(
+    g++library_path | \
+      while read line; do
+        if [ -e $line ]; then
+          find $line -name "${library_file}.so" \
+                      -or -name "lib${library_file}.so" \
+                      -or -name "${library_file}.a" \
+                      -or -name "lib${library_file}.a" \
+                      -or -name "${library_file}" \
+                      -or -name "lib${library_file}" | \
+          awk -F$line -v detail="${detail}" '{
+            if(detail){
+              print "libralypath:" FS "::" "library:" $2
+            }else{
+              print FS $2
+            }
+          }' | \
+          sed 's|library:/|library:|'
+        fi
+      done | \
+      sort | uniq
+  )
+  if [ -z "${library_files}" ]; then
     return 1
   fi
 
   # out put match files.
-  echo "${library_files[@]}" | xargs -n 1
+  echo "${library_files[@]}" | awk -v detail="${detail}" '{
+    if(detail){
+      sub("::", " ", $0)
+    }
+    print $0
+  }'
 }
 
 function usage() {
     cat 1>&2 <<EOF
-search_engine
+g++find_library
 output search engine setting
 
 USAGE:
-    search_engine [FLAGS] [OPTIONS]
+    g++find_library [FLAGS] [OPTIONS]
 
 FLAGS:
-    -l, --list              Show usable search engines.
-    -d, --detail            Show search engine detail
+    -d, --detail            Show include path, and path hierarchy
     -h, --help              Prints help information
 
 OPTIONS:

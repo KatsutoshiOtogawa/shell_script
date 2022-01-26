@@ -50,11 +50,9 @@ search_engine
 output search engine setting
 
 USAGE:
-    search_engine [FLAGS] [OPTIONS]
+    g++library_path [FLAGS] [OPTIONS]
 
 FLAGS:
-    -l, --list              Show usable search engines.
-    -d, --detail            Show search engine detail
     -h, --help              Prints help information
 
 OPTIONS:

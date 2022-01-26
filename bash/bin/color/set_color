@@ -18,6 +18,12 @@
 #######################################
 function set_color() {
 
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! source $(which gnu_alias); then
+      return 1;
+    fi
+  fi
   # set default value
   local delim=','
 

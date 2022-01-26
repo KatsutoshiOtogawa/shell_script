@@ -16,11 +16,31 @@
 #   g++find_include libsodium.so => show
 #######################################
 function g++find_include {
-  local include_file=$1
-  # if $include_file not exists, return function.
+
+  local detail
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    # if find --fields flag from args, open 
+    if [ "${new_array[$i]}" = "--detail" ] || [ "${new_array[$i]}" = "-d" ]; then
+      detail=yes
+      unset new_array[$i]
+    fi
+  done
+
+  # reindex
+  new_array=${new_array[@]}
+  local include_file=${new_array[0]}
+  # if $library_file not exists, return function.
   if [ -z $include_file ]; then
-      echo "${include_file} is not exists." >&2
+      echo "args include_file is not exists." >&2
       return 1
+  fi
+
+  # include file *.h or *.hpp
+  if [[ ! $include_file =~ \.h$ ]] && [[ ! $include_file =~ \.hpp$ ]]; then
+    echo "set include file! invalid extension file!"
+    return 1
   fi
 
   # set gnu alias.
@@ -30,31 +50,47 @@ function g++find_include {
     fi
   fi
 
-  # 
-  local include_files=$(g++include_path | \
-    xargs -I {} find {} -name ${include_file})
-
+  local include_files=$(
+    g++include_path | \
+    while read line; do
+      # 
+      find $line -name ${include_file} | \
+      awk -F$line -v detail="${detail}" '{
+        if(detail){
+          print "includepath:" FS "::" "include:" $2
+        }else{
+          print FS $2
+        }
+      }' | \
+      sed 's|include:/|include:|' | \
+      sort | uniq
+    done
+  )
   # if doesn't match path, return 1
-  if [ -z $include_files ]; then
+  if [ -z "${include_files}" ]; then
     return 1
   fi
 
   # out put match files.
-  echo "${include_files[@]}" | xargs -n 1
-
+  # escape for echo :: -> " "
+  echo "${include_files[@]}" | awk -v detail="${detail}" '{
+    if(detail){
+      sub("::", " ", $0)
+    }
+    print $0
+  }'
 }
 
 function usage() {
     cat 1>&2 <<EOF
-search_engine
+g++find_include
 output search engine setting
 
 USAGE:
-    search_engine [FLAGS] [OPTIONS]
+    g++find_include [FLAGS] [OPTIONS]
 
 FLAGS:
-    -l, --list              Show usable search engines.
-    -d, --detail            Show search engine detail
+    -d, --detail            Show include path, and path hierarchy
     -h, --help              Prints help information
 
 OPTIONS:

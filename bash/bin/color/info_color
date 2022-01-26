@@ -18,6 +18,10 @@
 #######################################
 function info_color() {
 
+  if ! type "jq" > /dev/null; then
+    echo "jq is not exists. install jq!" >&2
+    return 1
+  fi
   local filepath=$(realpath $(dirname $0))
   local color=$(jq -r .info ${filepath}/color.json)
 
