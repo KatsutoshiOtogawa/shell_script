@@ -29,8 +29,8 @@ function g++include_path () {
     trap - RETURN
   " RETURN
 
-  # output 
-  g++ -x c++ -v -E /dev/null < /dev/null > $tmpfile
+  # output value 
+  g++ -x c++ -v -E /dev/null < /dev/null > /dev/null 2> $tmpfile
 
   local line_num=$(cat ${tmpfile} | wc -l)
   # ファイルで全検索のデータから判断する。
@@ -44,15 +44,13 @@ function g++include_path () {
 
 function usage() {
     cat 1>&2 <<EOF
-search_engine
+g++include_path
 output search engine setting
 
 USAGE:
-    search_engine [FLAGS] [OPTIONS]
+    g++include_path [FLAGS] [OPTIONS]
 
 FLAGS:
-    -l, --list              Show usable search engines.
-    -d, --detail            Show search engine detail
     -h, --help              Prints help information
 
 OPTIONS:

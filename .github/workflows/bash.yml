@@ -36,10 +36,10 @@ jobs:
 #       run: bash/bin/
     # package project files
     - name: compressive archive
-      run: tar czvf bin.tar.gz bash/bin
+      run: tar czvf bash_script.tar.gz bash/bin
     - name: staging
-      run: mkdir staging && mv bin.tar.gz staging/
+      run: mkdir staging && mv bash_script.tar.gz staging/
     - uses: actions/upload-artifact@v2
       with:
-        name: bash
+        name: bash_script
         path: staging
