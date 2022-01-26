@@ -53,17 +53,19 @@ function g++find_include {
   local include_files=$(
     g++include_path | \
     while read line; do
-      # 
-      find $line -name ${include_file} | \
-      awk -F$line -v detail="${detail}" '{
-        if(detail){
-          print "includepath:" FS "::" "include:" $2
-        }else{
-          print FS $2
-        }
-      }' | \
-      sed 's|include:/|include:|' | \
-      sort | uniq
+      if [ -e $line ]; then
+
+        find $line -name ${include_file} | \
+        awk -F$line -v detail="${detail}" '{
+          if(detail){
+            print "includepath:" FS "::" "include:" $2
+          }else{
+            print FS $2
+          }
+        }' | \
+        sed 's|include:/|include:|' | \
+        sort | uniq
+      fi
     done
   )
   # if doesn't match path, return 1
