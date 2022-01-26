@@ -16,11 +16,6 @@
 #   gnu_alias # => you use use sed
 #######################################
 function gnu_alias {
-  # include gurad.
-  # if you set alias, return.
-  if [ ! -z $GNU_ALIAS ]; then
-    return
-  fi
   # you use Darwin, set alias for use Gnu sed, awk, xargs
   if uname | grep -e Darwin -e BSD > /dev/null; then
     if ! gnu_exists; then

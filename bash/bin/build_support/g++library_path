@@ -5,7 +5,7 @@
 #######################################
 # check g++ library_path g++ compiler search.
 # Globals:
-#   GNU_ALIAS
+#   None
 # Arguments:
 #   None
 # Outputs:
@@ -17,10 +17,8 @@
 #######################################
 function g++library_path {
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
 
   # check command for shellscript

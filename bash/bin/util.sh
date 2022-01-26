@@ -18,15 +18,8 @@
 #######################################
 function delete_file_header {
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
-    # unalias gnu command
-    trap '
-      gnu_unalias
-      trap - RETURN
-    ' RETURN
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
 
   local filepath=$1
@@ -56,15 +49,8 @@ function delete_file_header {
 #######################################
 function cat_map_delete_file_header {
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
-    # unalias gnu command
-    trap '
-      gnu_unalias
-      trap - RETURN
-    ' RETURN
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
   local filelist=$@
   if [ -z $filelist ]; then

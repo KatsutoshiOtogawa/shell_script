@@ -18,10 +18,8 @@
 #######################################
 function check_bash_version {
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
   
   local min_support=$BASH_VERSION_MIN_SUPPORT
