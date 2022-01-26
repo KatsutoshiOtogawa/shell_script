@@ -17,6 +17,13 @@
 #######################################
 function g++find_include {
 
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! source $(which gnu_alias); then
+      return 1;
+    fi
+  fi
+
   local detail
   local i
   local new_array=( $@ )
@@ -41,13 +48,6 @@ function g++find_include {
   if [[ ! $include_file =~ \.h$ ]] && [[ ! $include_file =~ \.hpp$ ]]; then
     echo "set include file! invalid extension file!"
     return 1
-  fi
-
-  # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
   fi
 
   local include_files=$(
