@@ -17,6 +17,12 @@
 #######################################
 function g++find_library {
 
+  # set gnu alias.
+  if [ -z $GNU_ALIAS ]; then
+    if ! source $(which gnu_alias); then
+      return 1;
+    fi
+  fi
   local detail
   local i
   local new_array=( $@ )
@@ -39,13 +45,6 @@ function g++find_library {
 
   # library_file=${library_file//(\.so|\.a)//}
 
-  # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
-  fi
-
   local library_files=$(
     g++library_path | \
       while read line; do
@@ -54,6 +53,8 @@ function g++find_library {
                       -or -name "lib${library_file}.so" \
                       -or -name "${library_file}.a" \
                       -or -name "lib${library_file}.a" \
+                      -or -name "${library_file}.dylib" \
+                      -or -name "lib${library_file}.dylib" \
                       -or -name "${library_file}" \
                       -or -name "lib${library_file}" | \
           awk -F$line -v detail="${detail}" '{
