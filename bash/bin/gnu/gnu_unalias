@@ -18,12 +18,18 @@
 function gnu_unalias {
   # you use Darwin, set alias for use Gnu sed, awk, xargs
   if uname | grep -e Darwin -e BSD > /dev/null; then
-    unalias sed
-    unalias awk
-    unalias xargs
-    unalias find
-    unalias date
-    unalias cut
+    unset -f sed
+    unset -f awk
+    unset -f xargs
+    unset -f find
+    unset -f date
+    unset -f cut
+    # unalias sed
+    # unalias awk
+    # unalias xargs
+    # unalias find
+    # unalias date
+    # unalias cut
     unset GNU_ALIAS
   fi
 }
