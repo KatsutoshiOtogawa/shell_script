@@ -1,0 +1,131 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# set alias gnu command for Mac and BSD.
+# Globals:
+#   GNU_ALIAS
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   0 if  set alias, non-zero on error.
+# Example:
+#   gnu_alias # => you use use sed
+#######################################
+function gnu_alias {
+  # you use Darwin, set alias for use Gnu sed, awk, xargs
+  if uname | grep -e Darwin -e BSD > /dev/null; then
+    if ! gnu_exists; then
+      echo "Any Gnu command is not exists." >&2
+      return 1
+    fi
+    # alias not using shellscript in norepl.
+    # and using function for alternative alias.
+    function sed {
+      gsed "$@"
+    }
+    function awk {
+      gawk "$@"
+    }
+    function xargs {
+      gxargs "$@"
+    }
+    function find {
+      gfind "$@"
+    }
+    function date {
+      gdate "$@"
+    }
+    function cut {
+      gcut "$@"
+    }
+    # alias sed=gsed
+    # alias awk=gawk
+    # alias xargs=gxargs
+    # alias find=gfind
+    # alias date=gdate
+    # alias cut=gcut
+
+    export GNU_ALIAS=GNU_ALIAS
+  fi
+}
+
+#######################################
+# check exists gnu command alias gnu command for Mac and BSD.
+# gsed, gawk, gxargs, gfind, ... and many
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   0 if exists gnu commands, non-zero on error.
+# Example:
+#   gnu_exists # => you use use sed
+#######################################
+function gnu_exists {
+  # you use Darwin, set alias for use Gnu sed, awk, xargs
+  if uname | grep -e Darwin -e BSD > /dev/null; then
+    # gsedがなかったら、return 1
+    if ! type "gsed" > /dev/null; then
+      echo "gsed is not exists." >&2
+      return 1
+    fi
+    if ! type "gawk" > /dev/null; then
+      echo "gawk is not exists." >&2
+      return 1
+    fi
+    if ! type "gxargs" > /dev/null; then
+      echo "gxargs is not exists." >&2
+      return 1
+    fi
+    if ! type "gfind" > /dev/null; then
+      echo "gfind is not exists." >&2
+      return 1
+    fi
+    if ! type "gdate" > /dev/null; then
+      echo "gdate is not exists." >&2
+      return 1
+    fi
+    if ! type "gcut" > /dev/null; then
+      echo "gcut is not exists." >&2
+      return 1
+    fi
+  fi
+}
+
+#######################################
+# unalias gnu command for Mac.
+# Globals:
+#   GNU_ALIAS
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   0 if thing was deleted, non-zero on error.
+# Example:
+#   gnu_unalias # => you use use sed
+#######################################
+function gnu_unalias {
+  # you use Darwin, set alias for use Gnu sed, awk, xargs
+  if uname | grep -e Darwin -e BSD > /dev/null; then
+    unset -f sed
+    unset -f awk
+    unset -f xargs
+    unset -f find
+    unset -f date
+    unset -f cut
+    # unalias sed
+    # unalias awk
+    # unalias xargs
+    # unalias find
+    # unalias date
+    # unalias cut
+    unset GNU_ALIAS
+  fi
+}

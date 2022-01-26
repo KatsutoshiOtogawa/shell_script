@@ -18,10 +18,8 @@
 function g++find_library {
 
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! gnu_alias; then
+    return 1;
   fi
   local detail
   local i
