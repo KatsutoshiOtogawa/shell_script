@@ -18,8 +18,6 @@ jobs:
 
     - name: add path
       run: echo "bash/bin" >> $GITHUB_PATH
-    - name: add path bash/bin/gnu
-      run: echo "bash/bin/gnu" >> $GITHUB_PATH
     - name: add path bash/bin/search_engin
       run: echo "bash/bin/search_engine" >> $GITHUB_PATH
     - name: add path bash/bin/build_support
@@ -28,7 +26,7 @@ jobs:
     - name: add permission
       run: chmod -R u+x bash/bin
     - name: check bash version
-      run: check_bash_version
+      run: source bash/function/gnu_alias && check_bash_version
     - name: outinfo
       run: LOGFORMAT="%Y-%m-%dT%H:%M:%S%z" outinfo
 
