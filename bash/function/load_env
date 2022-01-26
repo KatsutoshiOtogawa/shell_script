@@ -17,11 +17,6 @@
 #   eraze_comment_line file
 #######################################
 function eraze_comment_line {
-  # set gnu alias.
-  source $(dirname $0)/gnu_alias
-  if ! gnu_alias; then
-    return 1;
-  fi
   local filepath=$1
   # contains -
   if [ -z $filepath ]; then
@@ -47,18 +42,11 @@ function eraze_comment_line {
 #######################################
 function convert_export_line {
 
-  # set gnu alias.
-  source $(dirname $0)/gnu_alias
-  if ! gnu_alias; then
-    return 1;
-  fi
-
   local filepath=$1
   # contains -
   if [ -z $filepath ]; then
     filepath=-
   fi
-  # eraze_comment_line | xargs -I {} echo export {}
   eraze_comment_line $filepath | xargs -I {} echo export {}
 }
 
