@@ -26,7 +26,7 @@ jobs:
     - name: add permission
       run: chmod -R u+x bash/bin
     - name: check bash version
-      run: source bash/function/gnu_alias && check_bash_version
+      run: check_bash_version
     - name: outinfo
       run: LOGFORMAT="%Y-%m-%dT%H:%M:%S%z" outinfo
 
@@ -34,7 +34,7 @@ jobs:
 #       run: bash/bin/
     # package project files
     - name: compressive archive
-      run: tar czvf bash_script.tar.gz bash/bin
+      run: tar czvf bash_script.tar.gz bash/bin bash/function
     - name: staging
       run: mkdir staging && mv bash_script.tar.gz staging/
     - uses: actions/upload-artifact@v2
