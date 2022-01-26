@@ -18,10 +18,8 @@
 #######################################
 function eraze_comment_line {
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
   local filepath=$1
   # contains -
@@ -49,10 +47,8 @@ function eraze_comment_line {
 function convert_export_line {
 
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
 
   local filepath=$1

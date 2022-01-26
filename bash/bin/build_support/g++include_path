@@ -5,7 +5,7 @@
 #######################################
 # check g++ include_path g++ compiler search.
 # Globals:
-#   GNU_ALIAS
+#   None
 # Arguments:
 #   None
 # Outputs:
@@ -17,10 +17,8 @@
 #######################################
 function g++include_path () {
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
   local tmpfile=$(mktemp)
   # remove temporary file return function 

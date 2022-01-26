@@ -4,20 +4,16 @@
 
 function create_cal() {
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
   date +'%Y-%m-%d %H:%M:%S'
 }
 
 function create_date {
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
   date -d "30 days" --date '2021-12-29T11:37:43+0900'
 }
@@ -38,10 +34,8 @@ function create_date {
 #######################################
 function type_worklog() {
   # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
   if [ -z $WORKLOG_DIR ]; then
     echo 'set variable WORKING_DIR!' >&2

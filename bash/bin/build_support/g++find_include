@@ -5,7 +5,7 @@
 #######################################
 # g++ find include_file from g++ compiler path
 # Globals:
-#   GNU_ALIAS
+#   None
 # Arguments:
 #   include_file: assigned file.
 # Outputs:
@@ -17,11 +17,8 @@
 #######################################
 function g++find_include {
 
-  # set gnu alias.
-  if [ -z $GNU_ALIAS ]; then
-    if ! source $(which gnu_alias); then
-      return 1;
-    fi
+  if ! source $(which gnu_alias); then
+    return 1;
   fi
 
   local detail
@@ -63,10 +60,10 @@ function g++find_include {
             print FS $2
           }
         }' | \
-        sed 's|include:/|include:|' | \
-        sort | uniq
+        sed 's|include:/|include:|'
       fi
-    done
+    done | \
+    sort | uniq
   )
   # if doesn't match path, return 1
   if [ -z "${include_files}" ]; then

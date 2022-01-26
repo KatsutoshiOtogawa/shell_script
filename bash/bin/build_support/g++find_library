@@ -5,7 +5,7 @@
 #######################################
 # g++ find library_file from g++ compiler path
 # Globals:
-#   GNU_ALIAS
+#   None
 # Arguments:
 #   library_file: assigned file.
 # Outputs:
