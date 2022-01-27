@@ -66,6 +66,41 @@ function convert_export_line {
 #######################################
 function load_env {
 
+  for arg in "$@"; do
+    case "$arg" in
+      -h|--help)
+        function usage() {
+          cat 1>&2 << END
+load_env
+output search engine setting
+
+USAGE:
+    load_env [FLAGS] [OPTIONS]
+
+FLAGS:
+    -h, --help              Prints help information
+
+OPTIONS:
+    --debug                 Set bash debug Option
+END
+          unset -f usage
+        }
+        usage
+        return
+        ;;
+      --debug)
+        # set debug
+        set -x
+        trap "
+          set +x
+          trap - RETURN
+        " RETURN
+        ;;
+      *)
+        ;;
+    esac
+  done
+
   local filepath=$1
   # if you ,use pipe line value.
   if [ -z $filepath ]; then

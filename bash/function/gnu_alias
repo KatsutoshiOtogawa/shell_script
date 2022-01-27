@@ -16,6 +16,41 @@
 #   gnu_alias # => you use use sed
 #######################################
 function gnu_alias {
+    for arg in "$@"; do
+    case "$arg" in
+      -h|--help)
+        function usage() {
+          cat 1>&2 << END
+gnu_alias
+output search engine setting
+
+USAGE:
+    gnu_alias [FLAGS] [OPTIONS]
+
+FLAGS:
+    -h, --help              Prints help information
+
+OPTIONS:
+    --debug                 Set bash debug Option
+END
+          unset -f usage
+        }
+        usage
+        return
+        ;;
+      --debug)
+        # set debug
+        set -x
+        trap "
+          set +x
+          trap - RETURN
+        " RETURN
+        ;;
+      *)
+        ;;
+    esac
+  done
+
   # you use Darwin, set alias for use Gnu sed, awk, xargs
   if uname | grep -e Darwin -e BSD > /dev/null; then
     if ! gnu_exists; then
