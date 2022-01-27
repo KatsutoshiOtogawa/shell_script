@@ -13,22 +13,18 @@
 # Returns:
 #   0 if thing was set alias, non-zero on error.
 # Example:
-#   url_encode "Unable to do_something"  # => you use use sed
+#   md2epub "Unable to do_something"  # => you use use sed
 #######################################
 function md2epub() {
 
-        #   'pandoc','-f','markdown'
-        # ,'-t', 'epub3'
-        # ,path.join(self.setting.target, self.setting.manuscript)
-        # ,path.join(self.setting.target, self.setting.title)
-        # ,'-o', path.join(self.setting.target, self.setting.out)
-        # ,'--css', path.join(self.setting.target, self.setting.css)
-        # ,'--toc', '--toc-depth=2'
-        # ,'--epub-cover-image={}'.format(path.join(self.setting.target, self.setting.cover_image))
-
+  if ! type "pandoc" > /dev/null; then
+    echo "pandoc is not exists. install pandoc!" >&2
+    return 1
+  fi
   local i
   local title
   local css
+  local cover
   local new_array=( $@ )
   for ((i=0;i<$#;i++)); do
     if [ "${new_array[$i]}" = "--title" ]; then
@@ -61,12 +57,8 @@ function md2epub() {
   done
 
   local manuscript=${new_array[@]}
-  # --title
-  # title.txt
   
   local out=${manuscript//\.md/\.epub}
-  # --css
-  # cover.jpg
   pandoc -f markdown \
     -t epub3 \
     $manuscript \
@@ -79,15 +71,16 @@ function md2epub() {
 
 function usage() {
     cat 1>&2 <<EOF
-search_engine
+md2epub
 output search engine setting
 
 USAGE:
-    search_engine [FLAGS] [OPTIONS]
+    md2epub [FLAGS] [OPTIONS]
 
 FLAGS:
-    -l, --list              Show usable search engines.
-    -d, --detail            Show search engine detail
+    --title                 Show usable search engines.
+    --css                   using css 
+    --cover                 using css 
     -h, --help              Prints help information
 
 OPTIONS:
@@ -117,7 +110,7 @@ function main {
   # reindex assign.
   new_array=${new_array[@]}
 
-  url_encode $new_array
+  md2epub $new_array
 }
 
 main $@
