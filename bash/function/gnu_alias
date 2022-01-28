@@ -57,6 +57,21 @@ END
       echo "Any Gnu command is not exists." >&2
       return 1
     fi
+
+    function getopt {
+      if uname | grep -e Open > /dev/null; then
+        # openbsd
+        /usr/local/bin/gnugetopt "$@"
+      elif uname | grep -e Free > /dev/null; then
+        # freebsd
+        /usr/local/bin/getopt "$@"
+      elif uname | grep -e Darwin > /dev/null; then
+        # macos
+        # darwin
+        /usr/local/opt/gnu-getopt/bin/getopt "$@"
+      fi
+    }
+    
     # alias not using shellscript in norepl.
     # and using function for alternative alias.
     function sed {
@@ -106,6 +121,32 @@ function gnu_exists {
   # you use Darwin, set alias for use Gnu sed, awk, xargs
   if uname | grep -e Darwin -e BSD > /dev/null; then
     # gsedがなかったら、return 1
+
+    # gnu-getopt
+    if uname | grep -e Open > /dev/null; then
+      # openbsd
+      if ! type "/usr/local/bin/gnugetopt" > /dev/null; then
+        echo "gnu-getopt is not exists." >&2
+        return 1
+      fi
+    elif uname | grep -e Free > /dev/null; then
+      # freebsd
+      if ! type "/usr/local/bin/getopt" > /dev/null; then
+        echo "gnu-getopt is not exists." >&2
+        return 1
+      fi
+    elif uname | grep -e Darwin > /dev/null; then
+      # macos
+      # darwin
+      if ! type "/usr/local/opt/gnu-getopt/bin/getopt" > /dev/null; then
+        echo "gnu-getopt is not exists." >&2
+        return 1
+      fi
+    else
+      echo "unknown Unix!" >&2
+      return 1
+    fi
+
     if ! type "gsed" > /dev/null; then
       echo "gsed is not exists." >&2
       return 1
@@ -149,6 +190,7 @@ function gnu_exists {
 function gnu_unalias {
   # you use Darwin, set alias for use Gnu sed, awk, xargs
   if uname | grep -e Darwin -e BSD > /dev/null; then
+    unset -f getopt
     unset -f sed
     unset -f awk
     unset -f xargs
