@@ -1,0 +1,105 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# write stderr syntax. google style(https://google.github.io/styleguide/shellguide.html)
+# Globals:
+#   LOGFORMAT
+# Arguments:
+#   All.
+# Outputs:
+#   format 
+# Returns:
+#   0 if thing was set alias, non-zero on error.
+# Example:
+#   md2pptx "Unable to do_something"  # => you use use sed
+#######################################
+function md2pptx() {
+
+  if ! type "pandoc" > /dev/null; then
+    echo "pandoc is not exists. install pandoc!" >&2
+    return 1
+  fi
+  local i
+  local title
+  local css
+  local cover
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--title" ]; then
+      title=${new_array[$(($i+1))]}
+      # if next index start '-', this value is option.
+      if echo $title | grep ^- > /dev/null; then
+        echo "set title txt!" >&2
+        return 1
+      fi
+      unset new_array[$i] new_array[$(($i + 1))]
+    fi
+    if [ "${new_array[$i]}" = "--css" ]; then
+      css=${new_array[$(($i+1))]}
+      # if next index start '-', this value is option.
+      if echo $css | grep ^- > /dev/null; then
+        echo "set css!" >&2
+        return 1
+      fi
+      unset new_array[$i] new_array[$(($i + 1))]
+    fi
+  done
+
+  local manuscript=${new_array[@]}
+  
+  local out=${manuscript//\.md/\.pptx}
+  pandoc -f markdown \
+    $manuscript \
+    $title \
+    -o $out \
+    --css $css \
+    --toc --toc-depth=2
+}
+
+function usage() {
+  # あとで | help_fmtみたいな関数を作っておく。
+  cat 1>&2 << END
+md2pptx
+output search engine setting
+
+USAGE:
+    md2epub [FLAGS] [OPTIONS]
+
+FLAGS:
+    --title                 Show usable search engines.
+    --css                   using css 
+    -h, --help              Prints help information
+
+OPTIONS:
+    --debug                 Set bash debug Option
+END
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
+      usage
+      return
+    fi
+    # if find --debug flag from args, start debug mode.
+    if [ "${new_array[$i]}" = "--debug" ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  md2pptx $new_array
+}
+
+main $@
