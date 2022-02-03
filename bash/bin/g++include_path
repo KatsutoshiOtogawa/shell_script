@@ -29,7 +29,7 @@ function g++include_path () {
   " RETURN
 
   # output value 
-  g++ -x c++ -v -E /dev/null < /dev/null > /dev/null 2> $tmpfile
+  g++ -x c++ -v -E /dev/null > /dev/null 2> $tmpfile
 
   local line_num=$(cat ${tmpfile} | wc -l)
   # ファイルで全検索のデータから判断する。

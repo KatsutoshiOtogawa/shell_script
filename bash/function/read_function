@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# output os_type
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   os_type
+# Returns:
+#   0 if specialize os, non-zero unknown os.
+# Example:
+#   read_function # => source ~/bash/function/*
+#######################################
+function read_function {
+
+  local tempfile=$(mktemp)
+  trap "
+    rm ${tempfile}
+    trap - ERR
+  " ERR
+
+  # sourceが実行されたら.になるので、困る。
+  # sourceコマンド実行前提のものにはdirname自体がよくない可能性。
+  local function_dir=$HOME/bash/function
+  ls $function_dir |
+    grep -v .md |
+    grep -v read_function |
+    xargs -I {} echo source ${function_dir}/{} > $tempfile
+
+  source $tempfile
+
+  unset -f read_function
+  rm $tempfile
+  trap - ERR
+}
+
+read_function
