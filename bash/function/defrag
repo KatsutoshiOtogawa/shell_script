@@ -1,0 +1,25 @@
+#!/bin/bash
+#
+# gnu command util.
+
+if uname | grep -e Linux > /dev/null; then
+
+#######################################
+# Erase fragtation funciton. This function is useful when you create vagrant package.
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   clipboard data
+# Returns:
+#   0 if specialize os, non-zero unknown os.
+# Example:
+#   defrag # => if you use debian systems except ubuntu, output debian
+#######################################
+function defrag () {
+    dd if=/dev/zero of=/EMPTY bs=1M
+    rm -f /EMPTY
+}
+
+fi
