@@ -68,7 +68,7 @@ END
     os_type=SuSE
     # if you use BSD, 
   elif uname | grep -e Darwin -e BSD > /dev/null; then
-    os_type=$(grep -e Darwin -e BSD)
+    os_type=$(uname | grep -e Darwin -e BSD)
   fi
 
   if [ -z $os_type ]; then
