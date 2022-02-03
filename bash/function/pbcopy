@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# gnu command util.
+
+if uname | grep -e Linux > /dev/null; then
+
+#######################################
+# output os_type
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   None
+# Returns:
+#   0 if specialize os, non-zero unknown os.
+# Example:
+#   pbcopy # => if you use debian systems except ubuntu, output debian
+#######################################
+function pbcopy {
+  if ! which xlip > /dev/null; then
+    echo "xclip command not found." >&2
+    return 127
+  fi
+  xclip -selection c
+}
+
+fi
