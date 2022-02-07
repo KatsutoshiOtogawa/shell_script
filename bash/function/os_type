@@ -59,6 +59,10 @@ END
     os_type=fedora
   elif ls /etc | grep redhat-release > /dev/null; then
     os_type=rhel
+  elif ls /etc | grep oracle-release > /dev/null; then
+    os_type=oracle
+  elif cat /etc/os-release | grep "Amazon Linux 2" > /dev/null; then
+    os_type=amazonlinux2
     # debian systems except ubuntu.
   elif ls /etc | grep debian_version > /dev/null; then
     os_type=debian
