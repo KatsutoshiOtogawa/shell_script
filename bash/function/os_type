@@ -57,7 +57,8 @@ END
 
   if ls /etc | grep fedora-release > /dev/null; then
     os_type=fedora
-  elif ls /etc | grep redhat-release > /dev/null; then
+    # oracle linux has redhat-relese, except oracle.
+  elif ls /etc | grep redhat-release > /dev/null && ! ls /etc | grep oracle-release > /dev/null; then
     os_type=rhel
   elif ls /etc | grep oracle-release > /dev/null; then
     os_type=oracle
