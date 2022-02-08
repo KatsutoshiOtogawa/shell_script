@@ -18,7 +18,7 @@
 function url_encode() {
   local sentense=$1
 
-  if ! type "nkf" > /dev/null; then
+  if ! command -v nkf > /dev/null; then
     echo "nkf is not exists. install nkf!" >&2
     return 1
   fi

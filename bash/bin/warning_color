@@ -18,7 +18,7 @@
 #######################################
 function warning_color() {
 
-  if ! type "jq" > /dev/null; then
+  if ! command -v jq > /dev/null; then
     echo "jq is not exists. install jq!" >&2
     return 1
   fi

@@ -23,7 +23,7 @@ function deepl_translate {
     return 1
   fi
 
-  if ! which jq > /dev/null; then
+  if ! command -v jq > /dev/null; then
     echo 'install jq command. this command is needed to tranalate ' >&2
     return 1
   fi

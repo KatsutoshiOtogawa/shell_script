@@ -18,7 +18,7 @@ if uname | grep -e Linux > /dev/null; then
 #   pbpaste # => if you use debian systems except ubuntu, output debian
 #######################################
 function pbpaste {
-  if ! which xclip > /dev/null; then
+  if ! command -v xclip > /dev/null; then
     echo "xclip command not found." >&2
     return 127
   fi

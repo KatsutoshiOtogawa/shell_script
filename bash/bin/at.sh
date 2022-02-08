@@ -15,3 +15,13 @@
 #   # at -m でメールを送る事もできる。
 #   which at 
 # }
+
+function aaa {
+    echo ${aaaa:?}
+    echo hello world
+}
+
+function aaa {
+    cd abcs
+    echo hello world
+}
