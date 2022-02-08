@@ -18,7 +18,7 @@
 function convert_text_windows_style {
   local filepath=$1
   # check nkf command is exists
-  if ! type "nkf" > /dev/null; then
+  if ! command -v nkf > /dev/null; then
       echo "nkf is not exists." >&2
       return 1
   fi

@@ -23,11 +23,11 @@ function g++library_path {
   fi
 
   # check command for shellscript
-  if ! type "g++" > /dev/null; then
+  if ! command -v g++ > /dev/null; then
       echo "g++ is not exists. install g++!" >&2
       return 1
   fi
-  if ! type "realpath" > /dev/null; then
+  if ! command -v realpath > /dev/null; then
       echo "realpath is not exists. install realpath!" >&2
       return 1
   fi 
