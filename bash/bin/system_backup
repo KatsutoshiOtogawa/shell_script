@@ -1,0 +1,104 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# write stderr syntax. google style(https://google.github.io/styleguide/shellguide.html)
+# Globals:
+#   BACKUP_FORMAT
+# Arguments:
+#   All.
+# Outputs:
+#   format 
+# Returns:
+#   0 if thing was set alias, non-zero on error.
+# Example:
+#   url_encode "Unable to do_something"  # => you use use sed
+#######################################
+function system_backup() {
+
+  source $(dirname $0)/../function/gnu_alias
+  if ! gnu_alias; then
+    return 1;
+  fi
+
+  local backup_format=$BACKUP_FORMAT
+  if [ -z $backup_format ]; then
+    backup_format="%Y%m%dT%H%M%S%Z"
+  fi
+
+  local suffix_format=$(date +"${backup_format}")
+  local dryrun=""
+  if [ -z $ ]; then
+    dryrun="--dry-run"
+  fi
+  local exclude_list=("/dev/*" "/proc/*" "/sys/*" "/tmp/*" "/run/*" "/mnt/*" "/media/*" "/lost+found")
+
+  local backup_destination=/path/to/backup/
+
+  # 差分バックアップなので、差分があるところを調べる。
+  # 一番大きい行だけ取得する。
+  local latest_backup_file=$(ls -1 $backup_destination | sort | sed -n '1p' | xars -I {} basename {})
+
+  # add exclude-list
+  # $(IFS=","; echo "${exclude_list[*]}")
+  # if [ ]; then
+  # fi
+  # 再起処理にならないように注意
+  rsync -aAXv \
+    --compare-dest=${backup_destination}/${latest_backup_file} \
+    --exclude={$(echo ${exclude_list[@]} | sed 's/ \+/,/g')} \
+    $dryrun \
+    / \
+    ${backup_destination}/${suffix_format}
+
+    # 差分バックアップ
+  # --compare-dest=../backup-base
+  # 差分バックアップなので、一番新しい日付のものとの差分を取る。
+}
+
+function usage() {
+    cat 1>&2 <<EOF
+system_bakup
+this command 
+reference from [arch linux wiki](https://wiki.archlinux.jp/index.php/Rsync_%E3%81%AB%E3%82%88%E3%82%8B%E3%83%95%E3%83%AB%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E3%83%90%E3%83%83%E3%82%AF%E3%82%A2%E3%83%83%E3%83%97)
+
+USAGE:
+    system_backup [FLAGS] [OPTIONS]
+
+FLAGS:
+    -c, --check-exclude     check-exclude list
+    -f, --full              fullbackup. conains user directory /home.
+    -h, --help              Prints help information
+
+OPTIONS:
+    --dryrun                dry run. check sync process.
+EOF
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
+      usage
+      return
+    fi
+    # if find --debug flag from args, start debug mode.
+    if [ "${new_array[$i]}" = "--debug" ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  system_backup $new_array
+}
+
+main $@

@@ -26,3 +26,5 @@ Cargo.lock
 rust/src/*/target
 # g++ core dumpfile. this file required for debugging.
 core
+
+.vagrant

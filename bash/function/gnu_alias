@@ -92,6 +92,9 @@ END
     function cut {
       gcut "$@"
     }
+    function df {
+      gdf "$@"
+    }
     # alias sed=gsed
     # alias awk=gawk
     # alias xargs=gxargs
