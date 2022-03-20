@@ -104,6 +104,13 @@ END
 
     export GNU_ALIAS=yes
   fi
+
+  if ls /etc | grep debian_version >> /dev/null; then
+    function awk {
+      gawk "$@"
+    }
+    export GNU_ALIAS=yes
+  fi
 }
 
 #######################################
@@ -174,6 +181,18 @@ function gnu_exists {
       echo "gcut is not exists." >&2
       return 1
     fi
+    if ! type "gdf" > /dev/null; then
+      echo "gdf is not exists." >&2
+      return 1
+    fi
+  fi
+
+  # you use debian distribution, set alias awk.
+  if ls /etc | grep debian_version >> /dev/null; then
+    if ! type "gawk" > /dev/null; then
+      echo "gawk is not exists." >&2
+      return 1
+    fi
   fi
 }
 
@@ -200,12 +219,19 @@ function gnu_unalias {
     unset -f find
     unset -f date
     unset -f cut
+    unset -f df
     # unalias sed
     # unalias awk
     # unalias xargs
     # unalias find
     # unalias date
     # unalias cut
+    unset GNU_ALIAS
+  fi
+  # you use debian distribution, set alias awk.
+  if ls /etc | grep debian_version >> /dev/null; then
+    
+    unset -f awk
     unset GNU_ALIAS
   fi
 }

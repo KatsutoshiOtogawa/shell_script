@@ -6,6 +6,7 @@
 # write stderr syntax. google style(https://google.github.io/styleguide/shellguide.html)
 # Globals:
 #   BACKUP_FORMAT
+#   BACKUP_DESTINATION
 # Arguments:
 #   All.
 # Outputs:
@@ -13,7 +14,7 @@
 # Returns:
 #   0 if thing was set alias, non-zero on error.
 # Example:
-#   url_encode "Unable to do_something"  # => you use use sed
+#   system_backup --diffrental --destination 
 #######################################
 function system_backup() {
 
@@ -22,31 +23,132 @@ function system_backup() {
     return 1;
   fi
 
-  local backup_format=$BACKUP_FORMAT
+  # 引数をパースしたときのサブシェルの結果取得
+  local tmp_file=$(mktemp)
+  echo 0 > $tmp_file
+  trap "
+    rm $tmp_file
+    trap - RETURN
+  " RETURN
+  local options=$(getopt -o f:bc -l dry-run,destination:,diffrental -- "$@" || echo 1 > $tmp_file)
+  local re=$(sed -n '1p' $tmp_file)
+
+  if [ "$re" -ne "0" ]; then
+    return $re
+  fi
+  
+  local backup_format
+  local dryrun
+  local backup_destination
+  # パースした値を渡す
+  eval set -- "$options"
+
+  # 値のセットのみ行う
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -f)
+        shift
+        backup_format=$1
+        ;;
+      -b)
+        echo "-bが設定されている"
+        shift
+        ;;
+      -c)
+        echo "-cが設定されている"
+        shift
+        ;;
+      --dry-run)
+        shift
+        dryrun='--dry-run'
+        ;;
+      --destination)
+        shift
+        backup_destination=$1
+        ;;
+
+      --diffrental)
+        shift
+        diffrental=0
+        ;;
+        
+      --)
+        shift
+        break
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  # backupのフォーマットが指定されていなかったら、環境変数を設定する。それでもなかったら、
   if [ -z $backup_format ]; then
-    backup_format="%Y%m%dT%H%M%S%Z"
+    backup_format=$BACKUP_FORMAT
+    if [ -z $backup_format ]; then
+      backup_format="%Y%m%dT%H%M%S%Z"
+    fi
   fi
 
   local suffix_format=$(date +"${backup_format}")
-  local dryrun=""
-  if [ -z $ ]; then
-    dryrun="--dry-run"
-  fi
-  local exclude_list=("/dev/*" "/proc/*" "/sys/*" "/tmp/*" "/run/*" "/mnt/*" "/media/*" "/lost+found")
 
-  local backup_destination=/path/to/backup/
+  local exclude_list=("/dev/*" "/proc/*" "/sys/*" "/tmp/*" "/run/*" "/mnt/*" "/media/*" "/lost+found")
+  # 除外リストへの追加
+
+  if [ -z $backup_destination ]; then
+    backup_destination=$BACKUP_DESTINATION
+    if [ -z $backup_destination ]; then
+      backup_destination=
+    fi
+  fi
+  # 末尾の/を削除しておく。
+  backup_destination=$(echo $backup_destination | sed 's|/$||')
+
+  # ディレクトリの存在確認
+  if [ ! -d $backup_destination ]; then
+    echo $backup_destination is not exists!
+    return 1
+  else
+    # 除外リストに入っていないかチェック
+    local tmp_file2=$(mktemp)
+    trap "
+      rm $tmp_file
+      rm $tmp_file2
+      trap - RETURN
+    " RETURN
+    echo "${exclude_list[@]}" | \
+      xargs -n 1 | \
+      sed 's|\*$||' > $tmp_file2
+    # 再起処理になりそうなものがあったらエラーとして出力
+    local re2=0
+    for exclude in $(cat $tmp_file2); do
+      echo $backup_destination | grep -E ^${exclude} > /dev/null
+      if [ "$?" -eq 0 ]; then
+        echo $backup_destination is contain $exclude path. >&2
+        re2=1
+      fi
+    done
+    if [ "$re2" -eq "1" ]; then
+      return $re2
+    fi
+  fi
 
   # 差分バックアップなので、差分があるところを調べる。
   # 一番大きい行だけ取得する。
   local latest_backup_file=$(ls -1 $backup_destination | sort | sed -n '1p' | xars -I {} basename {})
 
+  local comparedest
+  if [ ! -z $latest_backup_file ] || [ $diffrental -eq "0" ]; then
+    comparedest="--compare-dest=${backup_destination}/${latest_backup_file}"
+  fi
+
+  # ない場合はcompare-destを削除
   # add exclude-list
   # $(IFS=","; echo "${exclude_list[*]}")
   # if [ ]; then
   # fi
-  # 再起処理にならないように注意
   rsync -aAXv \
-    --compare-dest=${backup_destination}/${latest_backup_file} \
+    $comparedest \
     --exclude={$(echo ${exclude_list[@]} | sed 's/ \+/,/g')} \
     $dryrun \
     / \
@@ -63,16 +165,21 @@ system_bakup
 this command 
 reference from [arch linux wiki](https://wiki.archlinux.jp/index.php/Rsync_%E3%81%AB%E3%82%88%E3%82%8B%E3%83%95%E3%83%AB%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E3%83%90%E3%83%83%E3%82%AF%E3%82%A2%E3%83%83%E3%83%97)
 
-USAGE:
+USAGE::
     system_backup [FLAGS] [OPTIONS]
 
 FLAGS:
     -c, --check-exclude     check-exclude list
-    -f, --full              fullbackup. conains user directory /home.
+    -f                      format for backup
+    --diffrental            use differential backup.
+    --destination           backup destination. roop not permited.
+    --full                  default is fullbackup. conains user directory /home.
     -h, --help              Prints help information
+    --dryrun                dry run. check sync process.
 
 OPTIONS:
-    --dryrun                dry run. check sync process.
+    --debug                 Set bash debug Option
+    --district              If you error occured, return.
 EOF
 }
 
