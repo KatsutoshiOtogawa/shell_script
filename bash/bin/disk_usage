@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# if grater than THERESHOLD(%), output row.
+# Globals:
+#   THERESHOLD
+# Arguments:
+#   All.
+# Outputs:
+#   format 
+# Returns:
+#   0 if thing was output df -h greater than THERESHOLD, non-zero on error.
+# Example:
+#   disk_usage  # => show output disk_
+#######################################
+function disk_usage() {
+
+  # gnuとbsdの差を埋める関数を読み込む。
+  source $(dirname $0)/../function/gnu_alias
+  if ! gnu_alias; then
+    return 1;
+  fi
+
+  local thereshold=$THERESHOLD
+  if [ -z $thereshold ] || [ $thereshold -lt 0 ] || [ $thereshold -gt 100 ] ; then
+    echo "set validate environment variable THERESHOLD!" >&2
+    return 1;
+  fi
+
+  # 使用率の列だけ取得する。対象行の行番号を配列で取得
+  local row_nums=$(
+    df --output='pcent' | \
+      sed '1d' | \
+      sed 's/%//' | \
+      awk -v th=$thereshold '$1>=th{print (NR + 1)}' | \
+      xargs -I {} echo "-e {}:"
+  )
+  # 使用率以上の行がない場合はヘッダーのみ表示。
+  if [ -z "${row_nums}" ]; then
+    df | sed -n '1p'
+    return
+  fi
+
+  # 使用率以上の行番号を渡すことにより、使用率以上の行を表示
+  df -h | \
+    grep '' -n | \
+    grep -e 1: $row_nums | \
+    rev | \
+    sed 's/:.*$//g' | \
+    rev
+}
+
+function usage() {
+    cat 1>&2 <<EOF
+disk_usage
+環境変数THERESHOLDより大きいディスクを表示します。 
+THERESHOLD
+
+USAGE:
+    disk_usage [FLAGS] [OPTIONS]
+
+FLAGS:
+    -h, --help              Prints help information
+
+OPTIONS:
+    --debug                 Set bash debug Option
+EOF
+}
+
+function main {
+
+  local i
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
+      usage
+      return
+    fi
+    # if find --debug flag from args, start debug mode.
+    if [ "${new_array[$i]}" = "--debug" ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  disk_usage $new_array
+}
+
+main $@

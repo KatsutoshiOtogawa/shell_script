@@ -12,6 +12,10 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     python3-pip \
     s-nail 
 
+RUN wget https://github.com/PowerShell/PowerShell/releases/download/v7.2.1/powershell-lts_7.2.1-1.deb_amd64.deb \
+    && apt install -y ./powershell-lts_7.2* \
+    && rm ./powershell-lts_7.2*
+
 # install nodejsv-16
 RUN wget https://nodejs.org/dist/v16.13.1/node-v16.13.1-linux-x64.tar.xz \
     && tar -xJf node-v16*.tar.xz -C /usr/local --strip-components=1 --no-same-owner \
