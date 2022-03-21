@@ -14,13 +14,18 @@
 # Returns:
 #   0 if thing was set alias, non-zero on error.
 # Example:
-#   system_backup --diffrental --destination 
+#   system_backup --diffrental --destination
 #######################################
 function system_backup() {
 
   source $(dirname $0)/../function/gnu_alias
   if ! gnu_alias; then
     return 1;
+  fi
+
+  if [ ${UID} -ne "0" ] && [ ${EUID} -ne "0" ]; then
+    echo 'this function use superuser only' >&2
+    return 1
   fi
 
   # 引数をパースしたときのサブシェルの結果取得
@@ -84,7 +89,7 @@ function system_backup() {
 
   local suffix_format=$(date +"${backup_format}")
 
-  local exclude_list=("/dev/*" "/proc/*" "/sys/*" "/tmp/*" "/run/*" "/mnt/*" "/media/*" "/lost+found")
+  local exclude_list=("dev" "proc" "sys" "tmp" "run" "mnt" "media" "lost+found")
   # 除外リストへの追加
 
   if [ -z $backup_destination ]; then
@@ -116,7 +121,7 @@ function system_backup() {
     # exclude pathに
     local re2=1
     for exclude in $(cat $tmp_file2); do
-      echo $backup_destination | grep -E ^${exclude} > /dev/null
+      echo $backup_destination | grep -E ^/${exclude} > /dev/null
       if [ "$?" -eq 0 ]; then
         re2=0
       fi
@@ -128,8 +133,8 @@ function system_backup() {
   fi
 
   # 差分バックアップなので、差分があるところを調べる。
-  # 一番大きい行だけ取得する。
-  local latest_backup_file=$(ls -1 $backup_destination | sort | sed -n '1p' | xars -I {} basename {})
+  # logファイルを覗いて、一番大きい行だけ取得する。
+  local latest_backup_file=$(ls -1 $backup_destination | grep -v .log | sort | sed -n '1p' | xargs -I {} basename {})
 
   local comparedest
   if [ ! -z $latest_backup_file ] || [ $diffrental -eq "0" ]; then
@@ -146,7 +151,8 @@ function system_backup() {
     --exclude={$(echo ${exclude_list[@]} | sed 's/ \+/,/g')} \
     $dryrun \
     / \
-    ${backup_destination}/${suffix_format}
+    ${backup_destination}/${suffix_format} \
+    --log-file ${backup_destination}/${suffix_format}.log
 
     # 差分バックアップ
   # --compare-dest=../backup-base
