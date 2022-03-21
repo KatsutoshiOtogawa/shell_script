@@ -47,9 +47,9 @@ function system_backup() {
   local backup_format
   local dryrun
   local backup_destination
-  local check_exclude
+  local check_exclude=1
   local add_exclude
-  local system_only
+  local system_only=1
   # パースした値を渡す
   eval set -- "$options"
 
@@ -128,6 +128,7 @@ function system_backup() {
   # system only exclude user directory.
   if [ "$system_only" -eq "0" ]; then
     exclude_list+=($(echo /home | sed 's|^/||' ))
+    exclude_list+=($(echo /root | sed 's|^/||' ))
   fi
   # output exclude directory
   if [ "$check_exclude" -eq "0" ]; then
@@ -174,7 +175,8 @@ function system_backup() {
       return $re2
     fi
   fi
-
+  # rsync -e 'ssh -i '
+  # という形で
   # 差分バックアップなので、差分があるところを調べる。
   # logファイルを覗いて、一番大きい行だけ取得する。
   local latest_backup_file=$(ls -1 $backup_destination | grep -v .log | sort | sed -n '1p' | xargs -I {} basename {})
@@ -185,6 +187,20 @@ function system_backup() {
     comparedest="--compare-dest=${backup_destination}/${latest_backup_file}"
   fi
 
+  # バックアップ元のファイルシステムを判別する
+  local backup_src_filesystem=$(findmnt -m --target / | sed -n '2p' | awk '{print $3}')
+  # バックアップ先のファイルシステムを判別する
+  local backup_dest_filesystem=$(findmnt -m --target ${backup_destination} | sed -n '2p' | awk '{print $3}')
+
+  if [ $backup_src_filesystem != $backup_dest_filesystem ]; then
+    echo "backup src filesystem is ${backup_src_filesystem}" >&2
+    echo "backup dest filesystem is ${backup_dest_filesystem}" >&2
+    echo "filesystem unmatch, acl or user info maybe lost." >&2
+    return 1
+  fi
+
+  # 別のシステムのバックアップを取る場合
+  # --numeric-ids
   rsync -aAXv \
     $comparedest \
     $(echo "${exclude_list[@]}" | xargs -n 1 | xargs -I {} echo --exclude {} | xargs) \
@@ -218,18 +234,30 @@ FLAGS:
 
 OPTIONS:
     --debug                 Set bash debug Option
-    --district              If you error occured, return.
+    --district              If you error occured and not catched, forcfully return. this flag use debug.
+    --check-grammer         check bash grammer
+    --time                  calculate execute time
 EOF
 }
 
 function main {
 
   local i
+  local timef=1
   local new_array=( $@ )
   for ((i=0;i<$#;i++)); do
     if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
       usage
       return
+    fi
+    if [ "${new_array[$i]}" = "--check-grammer" ]; then
+      bash -n $(dirname $0)/${BASH_SOURCE[0]}
+      return
+    fi
+    # set time flag for calculate script time.
+    if [ "${new_array[$i]}" = "--time" ]; then
+      timef=0
+      unset new_array[$i]
     fi
     # if find --debug flag from args, start debug mode.
     if [ "${new_array[$i]}" = "--debug" ]; then
@@ -244,7 +272,11 @@ function main {
   # reindex assign.
   new_array=${new_array[@]}
 
-  system_backup $new_array
+  if [ "$timef" -eq "0" ]; then
+    time system_backup $new_array
+  else
+    system_backup $new_array
+  fi
 }
 
 main $@
