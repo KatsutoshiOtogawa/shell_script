@@ -12,9 +12,11 @@
 # Outputs:
 #   format 
 # Returns:
-#   0 if thing was set alias, non-zero on error.
+#   0 if thing was backup is successed, non-zero on error.
 # Example:
-#   system_backup --diffrental --destination
+#   # .cache/ directory has browser cache file. chrome, edge and more...
+#   # --defferental 差分バックアップのオプション
+#   system_backup --diffrental --backup-dest /run/media/${USER}/data --add-exclude $HOME/.cache
 #######################################
 function system_backup() {
 
@@ -35,7 +37,7 @@ function system_backup() {
     rm $tmp_file
     trap - RETURN
   " RETURN
-  local options=$(getopt -o f: -l dry-run,destination:,diffrental -- "$@" || echo 1 > $tmp_file)
+  local options=$(getopt -o f: -l dry-run,backup-dest:,diffrental,check-exclude,system-only,add-exclude: -- "$@" || echo 1 > $tmp_file)
   local re=$(sed -n '1p' $tmp_file)
 
   if [ "$re" -ne "0" ]; then
@@ -45,6 +47,9 @@ function system_backup() {
   local backup_format
   local dryrun
   local backup_destination
+  local check_exclude
+  local add_exclude
+  local system_only
   # パースした値を渡す
   eval set -- "$options"
 
@@ -55,11 +60,23 @@ function system_backup() {
         shift
         backup_format=$1
         ;;
+      --check-exclude)
+        shift
+        check_exclude=0
+        ;;
       --dry-run)
         shift
         dryrun='--dry-run'
         ;;
-      --destination)
+      --system-only)
+        shift
+        system_only=0
+        ;;
+      --add-exclude)
+        shift
+        add_exclude=$1
+        ;;
+      --backup-dest)
         shift
         backup_destination=$1
         ;;
@@ -90,7 +107,33 @@ function system_backup() {
   local suffix_format=$(date +"${backup_format}")
 
   local exclude_list=("dev" "proc" "sys" "tmp" "run" "mnt" "media" "lost+found")
+  
+  exclude_list+=($(echo /home/*/.cache | sed 's|^/||'))
+  exclude_list+=($(echo /root/.cache | sed 's|^/||' ))
+
   # 除外リストへの追加
+  if [ ! -z $add_exclude ]; then
+    # destination 
+    exclude_list+=($(
+      echo $add_exclude | \
+        sed 's/,/ /g' | \
+        xargs -n 1 | \
+        sed 's|/$||' | \
+        sed 's|^/||' | \
+        xargs
+      )
+    )
+  fi
+
+  # system only exclude user directory.
+  if [ "$system_only" -eq "0" ]; then
+    exclude_list+=($(echo /home | sed 's|^/||' ))
+  fi
+  # output exclude directory
+  if [ "$check_exclude" -eq "0" ]; then
+    echo "${exclude_list[@]}"
+    return
+  fi
 
   if [ -z $backup_destination ]; then
     backup_destination=$BACKUP_DESTINATION
@@ -136,27 +179,21 @@ function system_backup() {
   # logファイルを覗いて、一番大きい行だけ取得する。
   local latest_backup_file=$(ls -1 $backup_destination | grep -v .log | sort | sed -n '1p' | xargs -I {} basename {})
 
+  # 差分指定で差分があったらそれを使う。それ以外はフルバックアップ
   local comparedest
   if [ ! -z $latest_backup_file ] || [ $diffrental -eq "0" ]; then
     comparedest="--compare-dest=${backup_destination}/${latest_backup_file}"
   fi
 
-  # ない場合はcompare-destを削除
-  # add exclude-list
-  # $(IFS=","; echo "${exclude_list[*]}")
-  # if [ ]; then
-  # fi
   rsync -aAXv \
     $comparedest \
-    --exclude={$(echo ${exclude_list[@]} | sed 's/ \+/,/g')} \
+    $(echo "${exclude_list[@]}" | xargs -n 1 | xargs -I {} echo --exclude {} | xargs) \
+    --log-file ${backup_destination}/${suffix_format}.log \
+    --info=progress2 \
     $dryrun \
     / \
-    ${backup_destination}/${suffix_format} \
-    --log-file ${backup_destination}/${suffix_format}.log
+    ${backup_destination}/${suffix_format}
 
-    # 差分バックアップ
-  # --compare-dest=../backup-base
-  # 差分バックアップなので、一番新しい日付のものとの差分を取る。
 }
 
 function usage() {
@@ -171,8 +208,10 @@ USAGE::
 FLAGS:
     -c, --check-exclude     check-exclude list
     -f                      format for backup
+    --system-only           backup exclude /home directory.
     --diffrental            use differential backup.
-    --destination           backup destination. roop not permited.
+    --backup-dest           backup destination. roop not permited.
+    --add-exclude           add excludes file or directories comman separeted /foo/bar,/awesome/directory,/aaa/bbb/ccc
     --full                  default is fullbackup. conains user directory /home.
     -h, --help              Prints help information
     --dryrun                dry run. check sync process.
