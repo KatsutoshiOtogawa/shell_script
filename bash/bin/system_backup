@@ -6,14 +6,17 @@
 # write stderr syntax. google style(https://google.github.io/styleguide/shellguide.html)
 # Globals:
 #   BACKUP_FORMAT
+#   BACKUP_DESTINATION
 # Arguments:
 #   All.
 # Outputs:
 #   format 
 # Returns:
-#   0 if thing was set alias, non-zero on error.
+#   0 if thing was backup is successed, non-zero on error.
 # Example:
-#   url_encode "Unable to do_something"  # => you use use sed
+#   # .cache/ directory has browser cache file. chrome, edge and more...
+#   # --defferental 差分バックアップのオプション
+#   system_backup --diffrental --backup-dest /run/media/${USER}/data --add-exclude $HOME/.cache
 #######################################
 function system_backup() {
 
@@ -22,39 +25,191 @@ function system_backup() {
     return 1;
   fi
 
-  local backup_format=$BACKUP_FORMAT
+  if [ ${UID} -ne "0" ] && [ ${EUID} -ne "0" ]; then
+    echo 'this function use superuser only' >&2
+    return 1
+  fi
+
+  # 引数をパースしたときのサブシェルの結果取得
+  local tmp_file=$(mktemp)
+  echo 0 > $tmp_file
+  trap "
+    rm $tmp_file
+    trap - RETURN
+  " RETURN
+  local options=$(getopt -o f: -l dry-run,backup-dest:,diffrental,check-exclude,system-only,add-exclude: -- "$@" || echo 1 > $tmp_file)
+  local re=$(sed -n '1p' $tmp_file)
+
+  if [ "$re" -ne "0" ]; then
+    return $re
+  fi
+  
+  local backup_format
+  local dryrun
+  local backup_destination
+  local check_exclude=1
+  local add_exclude
+  local system_only=1
+  # パースした値を渡す
+  eval set -- "$options"
+
+  # 値のセットのみ行う
+  while [ $# -gt 0 ]; do
+    case $1 in
+      -f)
+        shift
+        backup_format=$1
+        ;;
+      --check-exclude)
+        shift
+        check_exclude=0
+        ;;
+      --dry-run)
+        shift
+        dryrun='--dry-run'
+        ;;
+      --system-only)
+        shift
+        system_only=0
+        ;;
+      --add-exclude)
+        shift
+        add_exclude=$1
+        ;;
+      --backup-dest)
+        shift
+        backup_destination=$1
+        ;;
+
+      --diffrental)
+        shift
+        diffrental=0
+        ;;
+        
+      --)
+        shift
+        break
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  # backupのフォーマットが指定されていなかったら、環境変数を設定する。それでもなかったら、
   if [ -z $backup_format ]; then
-    backup_format="%Y%m%dT%H%M%S%Z"
+    backup_format=$BACKUP_FORMAT
+    if [ -z $backup_format ]; then
+      backup_format="%Y%m%dT%H%M%S%Z"
+    fi
   fi
 
   local suffix_format=$(date +"${backup_format}")
-  local dryrun=""
-  if [ -z $ ]; then
-    dryrun="--dry-run"
+
+  local exclude_list=("dev" "proc" "sys" "tmp" "run" "mnt" "media" "lost+found")
+  
+  exclude_list+=($(echo /home/*/.cache | sed 's|^/||'))
+  exclude_list+=($(echo /root/.cache | sed 's|^/||' ))
+
+  # 除外リストへの追加
+  if [ ! -z $add_exclude ]; then
+    # destination 
+    exclude_list+=($(
+      echo $add_exclude | \
+        sed 's/,/ /g' | \
+        xargs -n 1 | \
+        sed 's|/$||' | \
+        sed 's|^/||' | \
+        xargs
+      )
+    )
   fi
-  local exclude_list=("/dev/*" "/proc/*" "/sys/*" "/tmp/*" "/run/*" "/mnt/*" "/media/*" "/lost+found")
 
-  local backup_destination=/path/to/backup/
+  # system only exclude user directory.
+  if [ "$system_only" -eq "0" ]; then
+    exclude_list+=($(echo /home | sed 's|^/||' ))
+    exclude_list+=($(echo /root | sed 's|^/||' ))
+  fi
+  # output exclude directory
+  if [ "$check_exclude" -eq "0" ]; then
+    echo "${exclude_list[@]}"
+    return
+  fi
 
+  if [ -z $backup_destination ]; then
+    backup_destination=$BACKUP_DESTINATION
+    if [ -z $backup_destination ]; then
+      echo 'set backup destination.' >&2
+      return 1
+    fi
+  fi
+  # 末尾の/を削除しておく。
+  backup_destination=$(echo $backup_destination | sed 's|/$||')
+
+  # ディレクトリの存在確認
+  if [ ! -d $backup_destination ]; then
+    echo $backup_destination is not exists!
+    return 1
+  else
+    # 除外リストに入っていないかチェック
+    local tmp_file2=$(mktemp)
+    trap "
+      rm $tmp_file
+      rm $tmp_file2
+      trap - RETURN
+    " RETURN
+    echo "${exclude_list[@]}" | \
+      xargs -n 1 | \
+      sed 's|\*$||' > $tmp_file2
+    # 再起処理になりそうなものがあったらエラーとして出力
+    # exclude pathに
+    local re2=1
+    for exclude in $(cat $tmp_file2); do
+      echo $backup_destination | grep -E ^/${exclude} > /dev/null
+      if [ "$?" -eq 0 ]; then
+        re2=0
+      fi
+    done
+    if [ "$re2" -eq "1" ]; then
+      echo $backup_destination is contain backup_file path. >&2
+      return $re2
+    fi
+  fi
+  # rsync -e 'ssh -i '
+  # という形で
   # 差分バックアップなので、差分があるところを調べる。
-  # 一番大きい行だけ取得する。
-  local latest_backup_file=$(ls -1 $backup_destination | sort | sed -n '1p' | xars -I {} basename {})
+  # logファイルを覗いて、一番大きい行だけ取得する。
+  local latest_backup_file=$(ls -1 $backup_destination | grep -v .log | sort | sed -n '1p' | xargs -I {} basename {})
 
-  # add exclude-list
-  # $(IFS=","; echo "${exclude_list[*]}")
-  # if [ ]; then
-  # fi
-  # 再起処理にならないように注意
+  # 差分指定で差分があったらそれを使う。それ以外はフルバックアップ
+  local comparedest
+  if [ ! -z $latest_backup_file ] || [ $diffrental -eq "0" ]; then
+    comparedest="--compare-dest=${backup_destination}/${latest_backup_file}"
+  fi
+
+  # バックアップ元のファイルシステムを判別する
+  local backup_src_filesystem=$(findmnt -m --target / | sed -n '2p' | awk '{print $3}')
+  # バックアップ先のファイルシステムを判別する
+  local backup_dest_filesystem=$(findmnt -m --target ${backup_destination} | sed -n '2p' | awk '{print $3}')
+
+  if [ $backup_src_filesystem != $backup_dest_filesystem ]; then
+    echo "backup src filesystem is ${backup_src_filesystem}" >&2
+    echo "backup dest filesystem is ${backup_dest_filesystem}" >&2
+    echo "filesystem unmatch, acl or user info maybe lost." >&2
+    return 1
+  fi
+
+  # 別のシステムのバックアップを取る場合
+  # --numeric-ids
   rsync -aAXv \
-    --compare-dest=${backup_destination}/${latest_backup_file} \
-    --exclude={$(echo ${exclude_list[@]} | sed 's/ \+/,/g')} \
+    $comparedest \
+    $(echo "${exclude_list[@]}" | xargs -n 1 | xargs -I {} echo --exclude {} | xargs) \
+    --log-file ${backup_destination}/${suffix_format}.log \
+    --info=progress2 \
     $dryrun \
     / \
     ${backup_destination}/${suffix_format}
 
-    # 差分バックアップ
-  # --compare-dest=../backup-base
-  # 差分バックアップなので、一番新しい日付のものとの差分を取る。
 }
 
 function usage() {
@@ -63,27 +218,46 @@ system_bakup
 this command 
 reference from [arch linux wiki](https://wiki.archlinux.jp/index.php/Rsync_%E3%81%AB%E3%82%88%E3%82%8B%E3%83%95%E3%83%AB%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E3%83%90%E3%83%83%E3%82%AF%E3%82%A2%E3%83%83%E3%83%97)
 
-USAGE:
+USAGE::
     system_backup [FLAGS] [OPTIONS]
 
 FLAGS:
     -c, --check-exclude     check-exclude list
-    -f, --full              fullbackup. conains user directory /home.
+    -f                      format for backup
+    --system-only           backup exclude /home directory.
+    --diffrental            use differential backup.
+    --backup-dest           backup destination. roop not permited.
+    --add-exclude           add excludes file or directories comman separeted /foo/bar,/awesome/directory,/aaa/bbb/ccc
+    --full                  default is fullbackup. conains user directory /home.
     -h, --help              Prints help information
+    --dryrun                dry run. check sync process.
 
 OPTIONS:
-    --dryrun                dry run. check sync process.
+    --debug                 Set bash debug Option
+    --district              If you error occured and not catched, forcfully return. this flag use debug.
+    --check-grammer         check bash grammer
+    --time                  calculate execute time
 EOF
 }
 
 function main {
 
   local i
+  local timef=1
   local new_array=( $@ )
   for ((i=0;i<$#;i++)); do
     if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
       usage
       return
+    fi
+    if [ "${new_array[$i]}" = "--check-grammer" ]; then
+      bash -n $(dirname $0)/${BASH_SOURCE[0]}
+      return
+    fi
+    # set time flag for calculate script time.
+    if [ "${new_array[$i]}" = "--time" ]; then
+      timef=0
+      unset new_array[$i]
     fi
     # if find --debug flag from args, start debug mode.
     if [ "${new_array[$i]}" = "--debug" ]; then
@@ -98,7 +272,11 @@ function main {
   # reindex assign.
   new_array=${new_array[@]}
 
-  system_backup $new_array
+  if [ "$timef" -eq "0" ]; then
+    time system_backup $new_array
+  else
+    system_backup $new_array
+  fi
 }
 
 main $@
