@@ -16,7 +16,7 @@ if uname | grep -e Linux > /dev/null; then
 #   0 if specialize os, non-zero unknown os.
 # Example:
 #   # example write ~/.bashrc
-#   if [ "graphical.target" -eq $(systemctl get default)]; then
+#   if [ "graphical.target" != "$(systemctl get-default)" ]; then
 #     export PS1="(\$(cui_battery_info))${PS1}"
 #   fi
 #   
