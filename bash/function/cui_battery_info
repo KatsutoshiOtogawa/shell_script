@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# gnu command util.
+
+if uname | grep -e Linux > /dev/null; then
+
+#######################################
+# output os_type
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   clipboard data
+# Returns:
+#   0 if specialize os, non-zero unknown os.
+# Example:
+#   # example write ~/.bashrc
+#   if [ "graphical.target" -eq $(systemctl get default)]; then
+#     export PS1="(\$(cui_battery_info))${PS1}"
+#   fi
+#   
+#######################################
+function cui_battery_info {
+  if command -v upower > /dev/null; then
+
+    # バッテリー残量
+    local percentage=$(
+      upower -i /org/freedesktop/UPower/devices/battery_BAT0 | \
+        grep "percentage:" | \
+        rev | cut -d ' ' -f 1 | rev
+    )
+    local timeto
+    local sentense=remaing
+    timeto=$(
+      upower -i /org/freedesktop/UPower/devices/battery_BAT0 | \
+        grep "time to empty:" | \
+        rev | cut -d ' ' -f 1-2 | rev
+    )
+    if [ -z "${timeto}" ]; then
+      timeto=$(
+        upower -i /org/freedesktop/UPower/devices/battery_BAT0 | \
+          grep "time to full:" | \
+          rev | cut -d ' ' -f 1-2 | rev
+      )
+      sentense=charging
+    fi
+    echo $timeto $sentense \($percentage\)
+  elif command -v acpi > /dev/null; then
+    : pass
+  else
+    echo "acpi and upower command not found." >&2
+    return 127
+  fi
+}
+
+fi
