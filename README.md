@@ -300,13 +300,17 @@ done
 ```bash
 # expand file
 unzip bash_script.zip
-tar -zxvf -u bash_script.tar.gz -C ~/
+tar -zxvf bash_script.tar.gz -C ~/
 # expand to ~/bash
 
 # export path 
 export PATH=$PATH:$HOME/bash/bin
-export PATH=$PATH:$HOME/bash/bin/build_support
-export PATH=$PATH:$HOME/bash/bin/color
-export PATH=$PATH:$HOME/bash/bin/gnu
-export PATH=$PATH:$HOME/bash/bin/search_engine
+
+source $HOME/bash/function/read_function
+
+# if kernel command line 
+systemd_unit=$(cat /proc/cmdline | xargs -n 1 | grep systemd.unit | cut -d '=' -f 2)
+if [ "graphical.target" != "$(systemctl get-default)" ] || [ ! -z $systemd_unit ] && [ "graphical.target" != "$systemd_unit" ]; then
+  export PS1="(\$(cui_battery_info))${PS1}"
+fi
 ```
