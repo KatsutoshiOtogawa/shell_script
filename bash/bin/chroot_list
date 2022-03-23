@@ -1,0 +1,185 @@
+#!/bin/bash
+#
+# gnu command util.
+
+#######################################
+# write stderr syntax. google style(https://google.github.io/styleguide/shellguide.html)
+# Globals:
+#   LOGFORMAT
+# Arguments:
+#   All.
+# Outputs:
+#   format 
+# Returns:
+#   0 if thing was set alias, non-zero on error.
+# Example:
+#   err "Unable to do_something"  # => you use use sed
+#######################################
+function chroot_list() {
+
+  # exameple /mnt/gentoo
+  local chroot_path=$1
+
+  # 連結のため、最後に/があったら削除しておく
+  chroot_path=$(echo $chroot_path | sed 's|/$||')
+  if [ ! -d $chroot_path ]; then
+    echo 'directory not exists!' >&2
+    echo "you create $chroot_path" >&2
+    return 1
+  fi
+  shift
+  # /dev/sdb4
+  local device_path=$1
+
+  # device 存在確認
+  # 連結のため、最後に/があったら削除しておく
+  device_path=$(echo $device_path | sed 's|/$||')
+  if [ ! -f $device_path ]; then
+    echo 'device not exists!' >&2
+    return 1
+  fi
+  echo execute mount:
+  if [ ! -z $device_path ]; then
+    echo mount $device_path $chroot_path
+  fi
+  echo mount --types proc /proc $chroot_path/proc
+  echo mount --rbind /sys $chroot_path/sys
+  echo mount --make-rslave $chroot_path/sys
+  echo mount --rbind /dev $chroot_path/dev
+  echo mount --make-rslave $chroot_path/dev
+  echo mount --bind /run $chroot_path/run
+  echo mount --make-slave $chroot_path/run
+
+
+}
+
+function mount_for_chroot {
+  
+  # root権限でのみ実行
+  local chroot_path=$1
+ 
+  # 連結のため、最後に/があったら削除しておく
+  chroot_path=$(echo $chroot_path | sed 's|/$||')
+  if [ ! -d $chroot_path ]; then
+    echo 'directory not exists!' >&2
+    echo "you create $chroot_path" >&2
+    return 1
+  fi
+  shift
+  # /dev/sdb4
+  local device_path=$1
+
+  # device 存在確認
+  # 連結のため、最後に/があったら削除しておく
+  device_path=$(echo $device_path | sed 's|/$||')
+  if [ ! -f $device_path ]; then
+    echo 'device not exists!' >&2
+    return 1
+  fi
+
+  chroot_list $chroot_path $device_path
+
+  local ans
+  read -p "these mount ok? (y|n)> " ans
+  case $ans in
+    [Yy])
+      ans=y
+      ;;
+    [Nn])
+      ans=n
+      ;;
+    *)
+      ans=
+      ;;
+  esac
+  if [ "$ans" == "n" ]; then
+    echo "aborting !!" >&2
+    return 
+  elif [ -z $ans ]; then
+    echo "y or n type" >&2
+    return 1
+  fi
+
+  if [ ! -z $device_path ]; then
+    mount $device_path $chroot_path
+  fi
+  mount --types proc /proc $chroot_path/proc
+  mount --rbind /sys $chroot_path/sys
+  mount --make-rslave $chroot_path/sys
+  mount --rbind /dev $chroot_path/dev
+  mount --make-rslave $chroot_path/dev
+  mount --bind /run $chroot_path/run
+  mount --make-slave $chroot_path/run
+
+  echo chroot $chroot_path /bin/bash
+  echo read chroot environment:
+  echo source /etc/profile
+  echo export PS1="(chroot) ${PS1}"
+
+  # 解除時
+  echo umount -l $chroot_path/dev{/shm,/pts,}
+  echo umount -R $chroot_path
+}
+
+function usage() {
+    cat 1>&2 <<EOF
+chroot_list
+output search engine setting
+
+USAGE:
+    search_engine [FLAGS] [OPTIONS]
+
+FLAGS:
+    -l, --list              Show mount device and path list.
+    --device                mount device file /dev/sda4, .. and more
+    -h, --help              Prints help information
+
+OPTIONS:
+    --debug                 Set bash debug Option
+    --district              If you error occured and not catched, forcfully return. this flag use debug.
+    --check-grammer         check bash grammer
+    --time                  calculate execute time
+EOF
+}
+
+function main {
+
+  local i
+  local timef=1
+  local new_array=( $@ )
+  for ((i=0;i<$#;i++)); do
+    if [ "${new_array[$i]}" = "--help" ] || [ "${new_array[$i]}" = "-h" ]; then
+      usage
+      return
+    fi
+    if [ "${new_array[$i]}" = "--check-grammer" ]; then
+      bash -n $(dirname $0)/${BASH_SOURCE[0]}
+      return
+    fi
+    # set time flag for calculate script time.
+    if [ "${new_array[$i]}" = "--time" ]; then
+      timef=0
+      unset new_array[$i]
+    fi
+    # if find --debug flag from args, start debug mode.
+    if [ "${new_array[$i]}" = "--debug" ]; then
+      set -x
+      trap "
+        set +x
+        trap - RETURN
+      " RETURN
+      unset new_array[$i]
+    fi
+  done
+  # reindex assign.
+  new_array=${new_array[@]}
+
+  if [ "$timef" -eq "0" ]; then
+    time chroot_list $new_array
+  else
+    chroot_list $new_array
+  fi
+
+}
+
+main $@
