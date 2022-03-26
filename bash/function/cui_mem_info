@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# gnu command util.
+
+if uname | grep -e Linux > /dev/null; then
+
+#######################################
+# output os_type
+# Globals:
+#   None
+# Arguments:
+#   None
+# Outputs:
+#   clipboard data
+# Returns:
+#   0 if specialize os, non-zero unknown os.
+# Example:
+#   # example write ~/.bashrc
+#   systemd_unit=$(cat /proc/cmdline | xargs -n 1 | grep systemd.unit | cut -d '=' -f 2)
+#   if [ "graphical.target" != "$(systemctl get-default)" ] || [ ! -z $systemd_unit ] && [ "graphical.target" != "$systemd_unit" ]; then
+#     if ! echo $PS1 | grep battery > /dev/null; then
+#      export PS1="(\$(cui_mem_warn))${PS1}"
+#     fi
+#   fi
+#   
+#######################################
+function cui_mem_warn {
+  # 3列目のカラムが使用量のためこちらを使う。
+  local swap=$(free -h | grep Swap | xargs -n 1 | sed -n '3p')
+  if [ "0" -ne "$swap" ]; then
+    echo swap occur
+  fi
+}
+
+fi
