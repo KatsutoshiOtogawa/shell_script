@@ -308,9 +308,10 @@ export PATH=$PATH:$HOME/bash/bin
 
 source $HOME/bash/function/read_function
 
-# if kernel command line 
 systemd_unit=$(cat /proc/cmdline | xargs -n 1 | grep systemd.unit | cut -d '=' -f 2)
 if [ "graphical.target" != "$(systemctl get-default)" ] || [ ! -z $systemd_unit ] && [ "graphical.target" != "$systemd_unit" ]; then
-  export PS1="(\$(cui_battery_info))${PS1}"
+  if ! echo $PS1 | grep battery > /dev/null; then
+   export PS1="(battery: \$(cui_battery_info))${PS1}"
+  fi
 fi
 ```
