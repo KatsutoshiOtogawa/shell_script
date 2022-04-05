@@ -95,17 +95,15 @@ END
     function df {
       gdf "$@"
     }
-    # alias sed=gsed
-    # alias awk=gawk
-    # alias xargs=gxargs
-    # alias find=gfind
-    # alias date=gdate
-    # alias cut=gcut
 
     export GNU_ALIAS=yes
-  fi
-
-  if ls /etc | grep debian_version >> /dev/null; then
+  # debian default awk is mawk.
+  # alias gawk.
+  elif ls /etc | grep debian_version >> /dev/null; then
+    if ! gnu_exists; then
+      echo "Any Gnu command is not exists." >&2
+      return 1
+    fi
     function awk {
       gawk "$@"
     }
@@ -185,10 +183,8 @@ function gnu_exists {
       echo "gdf is not exists." >&2
       return 1
     fi
-  fi
-
   # you use debian distribution, set alias awk.
-  if ls /etc | grep debian_version >> /dev/null; then
+  elif ls /etc | grep debian_version >> /dev/null; then
     if ! type "gawk" > /dev/null; then
       echo "gawk is not exists." >&2
       return 1
@@ -220,12 +216,6 @@ function gnu_unalias {
     unset -f date
     unset -f cut
     unset -f df
-    # unalias sed
-    # unalias awk
-    # unalias xargs
-    # unalias find
-    # unalias date
-    # unalias cut
     unset GNU_ALIAS
   fi
   # you use debian distribution, set alias awk.
